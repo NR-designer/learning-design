@@ -1,0 +1,2147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dual-Path Scenario Simulation: The Meeting Choice</title>
+  <style>
+    /* ==========================================================================
+       DESIGN TOKENS & RESET
+       ========================================================================== */
+    :root {
+      --bg-app: #f1f5f9;
+      --bg-surface: #ffffff;
+      --bg-subtle: #f8fafc;
+      --text-primary: #0f172a;
+      --text-secondary: #334155;
+      --text-muted: #64748b;
+      --border-light: #e2e8f0;
+      --border-strong: #cbd5e1;
+
+      --brand-navy: #0f172a;
+      --brand-teal: #0d9488;
+      --brand-teal-hover: #0f766e;
+      --brand-teal-soft: #f0fdfa;
+      --brand-teal-border: #99f6e4;
+
+      --brand-blue: #0284c7;
+      --brand-blue-soft: #e0f2fe;
+      --brand-blue-dark: #0c4a6e;
+
+      --emerald-accent: #059669;
+      --emerald-soft: #ecfdf5;
+      --emerald-border: #a7f3d0;
+      --emerald-text: #065f46;
+
+      --coral-accent: #e11d48;
+      --coral-soft: #fff1f2;
+      --coral-border: #fecdd3;
+      --coral-text: #9f1239;
+
+      --amber-accent: #d97706;
+      --amber-soft: #fffbeb;
+      --amber-border: #fde68a;
+      --amber-text: #92400e;
+
+      --gsites-blue: #1a73e8;
+
+      --radius-lg: 14px;
+      --radius-md: 10px;
+      --radius-sm: 6px;
+      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08);
+      --shadow-md: 0 4px 14px -2px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+      --shadow-lg: 0 12px 28px -6px rgba(15, 23, 42, 0.14);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-app);
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    /* ==========================================================================
+       TOP PREVIEW TOOLBAR (EXCLUDED FROM EMBED COPY)
+       ========================================================================== */
+    .preview-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 10px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid #1e293b;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
+    }
+
+    .toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toolbar-badge {
+      background: var(--brand-teal);
+      color: #ffffff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    .toolbar-title {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #e2e8f0;
+    }
+
+    .mode-switcher {
+      display: inline-flex;
+      background: #1e293b;
+      padding: 3px;
+      border-radius: 8px;
+      border: 1px solid #334155;
+    }
+
+    .mode-btn {
+      background: transparent;
+      color: #94a3b8;
+      border: none;
+      padding: 6px 14px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .mode-btn:hover {
+      color: #ffffff;
+    }
+
+    .mode-btn.active {
+      background: #ffffff;
+      color: #0f172a;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    }
+
+    .copy-embed-btn {
+      background: #10b981;
+      color: #ffffff;
+      border: none;
+      padding: 7px 14px;
+      border-radius: 7px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.18s ease, transform 0.1s ease;
+    }
+
+    .copy-embed-btn:hover {
+      background: #059669;
+    }
+
+    .copy-embed-btn:active {
+      transform: scale(0.97);
+    }
+
+    .copy-embed-btn.copied {
+      background: #0284c7;
+    }
+
+    /* Toast Notification */
+    .toast-notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #0f172a;
+      color: #ffffff;
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-size: 0.86rem;
+      font-weight: 500;
+      box-shadow: var(--shadow-lg);
+      border-left: 4px solid #10b981;
+      opacity: 0;
+      transform: translateY(16px);
+      pointer-events: none;
+      transition: all 0.25s ease;
+      z-index: 999;
+    }
+
+    .toast-notification.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ==========================================================================
+       VIEWPORT MODES (WIDGET VIEW VS GOOGLE SITES PREVIEW)
+       ========================================================================== */
+    .workspace-stage {
+      padding: 24px 16px 48px;
+      transition: all 0.25s ease;
+    }
+
+    .workspace-stage.mode-widget .gsites-chrome-top,
+    .workspace-stage.mode-widget .gsites-hero-banner,
+    .workspace-stage.mode-widget .gsites-intro-block,
+    .workspace-stage.mode-widget .gsites-outro-block,
+    .workspace-stage.mode-widget .gsites-footer {
+      display: none;
+    }
+
+    .workspace-stage.mode-widget .gsites-page-canvas {
+      max-width: 980px;
+      margin: 0 auto;
+      background: transparent;
+      box-shadow: none;
+      border: none;
+      padding: 0;
+    }
+
+    .workspace-stage.mode-widget .gsites-embed-frame {
+      border: none;
+      box-shadow: none;
+      padding: 0;
+      background: transparent;
+    }
+
+    .workspace-stage.mode-widget .embed-frame-label {
+      display: none;
+    }
+
+    .workspace-stage.mode-widget .gsites-content-body {
+      padding: 0;
+    }
+
+    /* Google Sites Simulation Wrapper */
+    .workspace-stage.mode-gsites {
+      background: #e2e8f0;
+      padding-top: 20px;
+    }
+
+    .gsites-page-canvas {
+      max-width: 1080px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 10px;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      border: 1px solid #cbd5e1;
+    }
+
+    .gsites-chrome-top {
+      background: #ffffff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .gsites-site-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      font-size: 1.05rem;
+      color: #334155;
+    }
+
+    .gsites-logo-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: var(--gsites-blue);
+      color: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+
+    .gsites-nav-links {
+      display: flex;
+      gap: 20px;
+      font-size: 0.88rem;
+      color: #475569;
+    }
+
+    .gsites-nav-links span.active-nav {
+      color: var(--gsites-blue);
+      font-weight: 600;
+      border-bottom: 2px solid var(--gsites-blue);
+      padding-bottom: 4px;
+    }
+
+    .gsites-hero-banner {
+      background: linear-gradient(135deg, #0f172a 0%, #115e59 100%);
+      color: #ffffff;
+      padding: 36px 36px;
+    }
+
+    .gsites-module-kicker {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #5eead4;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .gsites-hero-banner h2 {
+      font-size: 1.7rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .gsites-hero-sub {
+      font-size: 0.96rem;
+      color: #cbd5e1;
+      max-width: 720px;
+    }
+
+    .gsites-content-body {
+      padding: 32px 36px 40px;
+    }
+
+    .gsites-intro-block {
+      max-width: 860px;
+      margin: 0 auto 24px;
+    }
+
+    .gsites-section-heading {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+
+    .gsites-framing-text {
+      font-size: 0.98rem;
+      color: #334155;
+      line-height: 1.65;
+    }
+
+    .gsites-embed-frame {
+      border: 2px dashed #94a3b8;
+      border-radius: 12px;
+      padding: 16px;
+      background: #f8fafc;
+      margin: 0 auto;
+    }
+
+    .embed-frame-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #475569;
+      background: #e2e8f0;
+      padding: 4px 10px;
+      border-radius: 5px;
+      margin-bottom: 12px;
+    }
+
+    .gsites-outro-block {
+      max-width: 860px;
+      margin: 24px auto 0;
+      background: #f8fafc;
+      border-left: 4px solid var(--gsites-blue);
+      padding: 16px 20px;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .gsites-outro-block h3 {
+      font-size: 0.88rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--gsites-blue);
+      margin-bottom: 6px;
+    }
+
+    .gsites-outro-block p {
+      font-size: 0.95rem;
+      color: #334155;
+      line-height: 1.6;
+    }
+
+    .gsites-footer {
+      background: #f1f5f9;
+      border-top: 1px solid #e2e8f0;
+      padding: 14px 36px;
+      font-size: 0.8rem;
+      color: #64748b;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    /* ==========================================================================
+       STANDALONE SIMULATION WIDGET STYLES
+       ========================================================================== */
+    .sim-widget {
+      width: 100%;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: 26px;
+    }
+
+    /* Header & Step Progress Indicator */
+    .sim-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      padding-bottom: 18px;
+      margin-bottom: 22px;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .sim-title-area h1 {
+      font-size: 1.32rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .sim-title-area p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .step-tracker {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-subtle);
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-light);
+    }
+
+    .step-pill {
+      font-size: 0.76rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      color: var(--text-muted);
+      transition: all 0.2s ease;
+    }
+
+    .step-pill.active {
+      background: var(--brand-navy);
+      color: #ffffff;
+    }
+
+    .step-pill.completed {
+      background: var(--emerald-soft);
+      color: var(--emerald-text);
+    }
+
+    /* Meeting Brief Card */
+    .meeting-brief-card {
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border: 1px solid var(--border-strong);
+      border-left: 5px solid var(--brand-navy);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .brief-meta-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #dc2626;
+    }
+
+    .brief-scenario-text {
+      font-size: 0.96rem;
+      color: var(--text-secondary);
+      margin-bottom: 14px;
+      line-height: 1.6;
+    }
+
+    .pm-quote-box {
+      background: #ffffff;
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .pm-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--brand-navy);
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 0.82rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .pm-quote-content {
+      flex: 1;
+    }
+
+    .pm-speaker {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    .pm-quote {
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      font-style: italic;
+    }
+
+    /* Stage Sections */
+    .stage-block {
+      margin-bottom: 24px;
+      animation: fadeSlideIn 0.35s ease forwards;
+    }
+
+    .stage-block.hidden {
+      display: none;
+    }
+
+    @keyframes fadeSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .stage-heading-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .stage-label {
+      font-size: 1.02rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stage-num {
+      background: var(--brand-teal);
+      color: #ffffff;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .stage-sub {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+    }
+
+    /* Stage 1: Concept Prediction Chips */
+    .concept-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .concept-btn {
+      background: #ffffff;
+      border: 2px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .concept-btn:hover {
+      border-color: var(--brand-teal);
+      background: var(--brand-teal-soft);
+    }
+
+    .concept-btn.selected-correct {
+      border-color: var(--emerald-accent);
+      background: var(--emerald-soft);
+    }
+
+    .concept-btn.selected-wrong {
+      border-color: var(--amber-accent);
+      background: var(--amber-soft);
+    }
+
+    .concept-name {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .concept-hint {
+      font-size: 0.77rem;
+      color: var(--text-muted);
+    }
+
+    .predict-feedback {
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      font-size: 0.9rem;
+      line-height: 1.55;
+      display: none;
+    }
+
+    .predict-feedback.visible {
+      display: block;
+      animation: fadeSlideIn 0.25s ease forwards;
+    }
+
+    .predict-feedback.is-correct {
+      background: var(--emerald-soft);
+      border: 1px solid var(--emerald-border);
+      color: var(--emerald-text);
+    }
+
+    .predict-feedback.is-partial {
+      background: var(--amber-soft);
+      border: 1px solid var(--amber-border);
+      color: var(--amber-text);
+    }
+
+    /* Stage 2: Coordinator Action Choice Cards */
+    .decision-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .decision-card {
+      background: #ffffff;
+      border: 2px solid var(--border-strong);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+      position: relative;
+    }
+
+    .decision-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .decision-card.path-a:hover,
+    .decision-card.path-a.active-choice {
+      border-color: var(--coral-accent);
+      background: linear-gradient(to bottom, var(--coral-soft) 0%, #ffffff 45%);
+    }
+
+    .decision-card.path-b:hover,
+    .decision-card.path-b.active-choice {
+      border-color: var(--emerald-accent);
+      background: linear-gradient(to bottom, var(--emerald-soft) 0%, #ffffff 45%);
+    }
+
+    .path-badge {
+      display: inline-block;
+      font-size: 0.74rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 8px;
+    }
+
+    .path-a .path-badge {
+      background: #ffe4e6;
+      color: var(--coral-text);
+    }
+
+    .path-b .path-badge {
+      background: #d1fae5;
+      color: var(--emerald-text);
+    }
+
+    .decision-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    .decision-desc {
+      font-size: 0.89rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+
+    .decision-cta {
+      font-size: 0.83rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .path-a .decision-cta {
+      color: var(--coral-accent);
+    }
+
+    .path-b .decision-cta {
+      color: var(--emerald-accent);
+    }
+
+    /* Stage 3: Branching Consequence Simulation */
+    .outcome-wrapper {
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background: #ffffff;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .outcome-banner {
+      padding: 18px 22px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .outcome-banner.theme-coral {
+      background: var(--coral-soft);
+      border-bottom: 1px solid var(--coral-border);
+    }
+
+    .outcome-banner.theme-emerald {
+      background: var(--emerald-soft);
+      border-bottom: 1px solid var(--emerald-border);
+    }
+
+    .outcome-headline h3 {
+      font-size: 1.14rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .outcome-headline p {
+      font-size: 0.86rem;
+      color: var(--text-secondary);
+    }
+
+    .outcome-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .btn-secondary {
+      background: #ffffff;
+      color: var(--text-primary);
+      border: 1px solid var(--border-strong);
+      padding: 7px 13px;
+      border-radius: 7px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-secondary:hover {
+      background: #f1f5f9;
+      border-color: var(--text-muted);
+    }
+
+    .btn-compare-active {
+      background: var(--brand-navy);
+      color: #ffffff;
+      border-color: var(--brand-navy);
+    }
+
+    .btn-compare-active:hover {
+      background: #1e293b;
+    }
+
+    /* 3-Phase Interactive Timeline Tabs */
+    .phase-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      background: #f8fafc;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .phase-tab-btn {
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      padding: 13px 12px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.18s ease;
+      text-align: center;
+    }
+
+    .phase-tab-btn:hover {
+      color: var(--text-primary);
+      background: #f1f5f9;
+    }
+
+    .phase-tab-btn.active {
+      color: var(--brand-navy);
+      background: #ffffff;
+      border-bottom-color: var(--brand-teal);
+    }
+
+    .outcome-body {
+      padding: 22px;
+    }
+
+    /* Simulated Slack / Email Artifact */
+    .artifact-box {
+      background: #f8fafc;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+      margin-bottom: 20px;
+    }
+
+    .artifact-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid var(--border-light);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .artifact-channel {
+      font-weight: 700;
+      color: var(--text-primary);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .artifact-message {
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* 3 Visual Metric Cards */
+    .metrics-trio {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .metric-card {
+      background: #ffffff;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 14px;
+    }
+
+    .metric-card-label {
+      font-size: 0.74rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .metric-card-value {
+      font-size: 0.96rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .metric-card-value.good {
+      color: var(--emerald-accent);
+    }
+
+    .metric-card-value.bad {
+      color: var(--coral-accent);
+    }
+
+    .metric-card-value.neutral {
+      color: var(--amber-accent);
+    }
+
+    .meter-track {
+      width: 100%;
+      height: 8px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    .meter-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.4s ease;
+    }
+
+    .metric-card-note {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+    }
+
+    /* Side-by-Side Comparison View */
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      padding: 22px;
+    }
+
+    .compare-col {
+      border-radius: var(--radius-md);
+      padding: 18px;
+      border: 1px solid var(--border-light);
+    }
+
+    .compare-col.col-a {
+      background: var(--coral-soft);
+      border-color: var(--coral-border);
+    }
+
+    .compare-col.col-b {
+      background: var(--emerald-soft);
+      border-color: var(--emerald-border);
+    }
+
+    .compare-col h4 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--text-primary);
+    }
+
+    .compare-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+    }
+
+    .compare-list li {
+      background: #ffffff;
+      padding: 10px 12px;
+      border-radius: 7px;
+      border: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    .compare-list strong {
+      display: block;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-bottom: 2px;
+      color: var(--text-primary);
+    }
+
+    /* Takeaway Footer Callout inside Widget */
+    .reflection-callout {
+      margin-top: 20px;
+      background: var(--brand-blue-soft);
+      border-left: 4px solid var(--brand-blue);
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.9rem;
+      color: var(--brand-blue-dark);
+      line-height: 1.55;
+    }
+
+    /* Responsive Breakpoints */
+    @media (max-width: 768px) {
+      .decision-grid,
+      .metrics-trio,
+      .compare-grid {
+        grid-template-columns: 1fr;
+      }
+      .phase-tabs {
+        grid-template-columns: 1fr;
+      }
+      .sim-widget {
+        padding: 18px;
+      }
+      .gsites-content-body {
+        padding: 20px;
+      }
+      .gsites-hero-banner {
+        padding: 26px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========================================================================
+       PREVIEW TOOLBAR (EXCLUDED WHEN COPYING EMBED HTML)
+       ======================================================================== -->
+  <nav class="preview-toolbar" aria-label="Preview Mode Controls">
+    <div class="toolbar-left">
+      <span class="toolbar-badge">ID Preview</span>
+      <span class="toolbar-title">Option 1: The Meeting Choice Simulation</span>
+    </div>
+
+    <div class="mode-switcher" role="tablist" aria-label="Display Mode">
+      <button type="button" class="mode-btn active" id="btnWidgetView" role="tab" aria-selected="true">
+        &#9635; Widget View
+      </button>
+      <button type="button" class="mode-btn" id="btnGsitesView" role="tab" aria-selected="false">
+        &#127760; Google Sites Preview
+      </button>
+    </div>
+
+    <button type="button" class="copy-embed-btn" id="btnCopyEmbed" title="Copy standalone widget HTML for Google Sites Embed">
+      &#128203; <span id="copyBtnText">Copy Embed HTML</span>
+    </button>
+  </nav>
+
+  <!-- ========================================================================
+       MAIN STAGE (WIDGET VIEW OR GOOGLE SITES COURSE PAGE PREVIEW)
+       ======================================================================== -->
+  <main class="workspace-stage mode-widget" id="workspaceStage">
+    <div class="gsites-page-canvas">
+
+      <!-- Simulated Google Sites Top Bar -->
+      <header class="gsites-chrome-top">
+        <div class="gsites-site-brand">
+          <span class="gsites-logo-icon">AI</span>
+          <span>Healthcare AI Ethics &amp; Governance</span>
+        </div>
+        <div class="gsites-nav-links">
+          <span>Course Home</span>
+          <span class="active-nav">SC 22: Analyze Healthcare Ethics in AI Projects</span>
+          <span>Glossary</span>
+        </div>
+      </header>
+
+      <!-- Simulated Google Sites Banner -->
+      <section class="gsites-hero-banner">
+        <div class="gsites-module-kicker">Module 1 &bull; Scenario Simulation</div>
+        <h2>SC 22: Analyze Healthcare Ethics in AI Projects</h2>
+        <p class="gsites-hero-sub">Practicing entry-level ethics fluency: how naming and routing a single risk protects patients and builds leadership trust.</p>
+      </section>
+
+      <!-- Simulated Google Sites Content Body -->
+      <div class="gsites-content-body">
+
+        <!-- Framing Intro Above Widget -->
+        <div class="gsites-intro-block">
+          <h3 class="gsites-section-heading">Why Ethics Fluency Distinguishes Trusted Coordinators</h3>
+          <p class="gsites-framing-text">
+            Step into the shoes of a newly hired healthcare AI coordinator during your first ethics review meeting. Before reading any theory, test your ability to <strong>spot the ethics concept at stake</strong>, choose how to respond before rollout, and observe the downstream impact on patients and your role.
+          </p>
+        </div>
+
+        <!-- Simulated Google Sites Iframe Container -->
+        <div class="gsites-embed-frame">
+          <div class="embed-frame-label">&#128279; Google Sites &gt; Insert &gt; Embed &gt; Embed Code (Iframe Preview)</div>
+
+          <!-- ================================================================
+               STANDALONE INTERACTIVE SIMULATION WIDGET (EXTRACTED ON COPY)
+               ================================================================ -->
+          <div class="sim-widget" id="standaloneWidgetRoot">
+            <div class="sim-header">
+              <div class="sim-title-area">
+                <h1>The Meeting Choice: Entry-Level Ethics Fluency</h1>
+                <p>Predict the concept, make your call before rollout, and trace the 3-month consequences.</p>
+              </div>
+              <div class="step-tracker" aria-label="Simulation Progress">
+                <span class="step-pill active" id="pillStep1">1. Predict</span>
+                <span class="step-pill" id="pillStep2">2. Decide</span>
+                <span class="step-pill" id="pillStep3">3. Outcome</span>
+              </div>
+            </div>
+
+            <!-- Meeting Scenario Brief (Always Visible Context) -->
+            <section class="meeting-brief-card" aria-label="Ethics Review Meeting Scenario">
+              <div class="brief-meta-bar">
+                <span class="live-badge"><span class="live-dot"></span> Ethics Review Meeting &bull; Pre-Rollout</span>
+                <span>Role: Entry-Level Healthcare AI Coordinator</span>
+              </div>
+              <p class="brief-scenario-text">
+                <strong>Proposed Workflow Change:</strong> A predictive AI model will automatically scan discharge records and flag high-risk patients for nurse follow-up phone calls. To keep calls brief, nurses will <em>not</em> disclose to patients that an algorithm made the referral.
+              </p>
+              <div class="pm-quote-box">
+                <div class="pm-avatar" aria-hidden="true">PM</div>
+                <div class="pm-quote-content">
+                  <div class="pm-speaker">Senior Program Manager (pauses the room)</div>
+                  <div class="pm-quote">"Where in this workflow does the patient still get a real choice?"</div>
+                </div>
+              </div>
+            </section>
+
+            <!-- STAGE 1: PREDICT & NAME THE CONCEPT -->
+            <section class="stage-block" id="stage1Block">
+              <div class="stage-heading-row">
+                <h2 class="stage-label"><span class="stage-num">1</span> Predict &amp; Name the Ethics Concept at Stake</h2>
+                <span class="stage-sub">Select the primary concept before making your decision</span>
+              </div>
+
+              <div class="concept-grid" id="conceptGrid">
+                <button type="button" class="concept-btn" data-concept="consent">
+                  <span class="concept-name">Consent Boundaries &amp; Patient Autonomy</span>
+                  <span class="concept-hint">Patient awareness &amp; meaningful choice in care</span>
+                </button>
+                <button type="button" class="concept-btn" data-concept="beneficence">
+                  <span class="concept-name">Beneficence</span>
+                  <span class="concept-hint">Acting to promote patient well-being</span>
+                </button>
+                <button type="button" class="concept-btn" data-concept="nonmaleficence">
+                  <span class="concept-name">Nonmaleficence</span>
+                  <span class="concept-hint">Avoiding direct clinical harm</span>
+                </button>
+                <button type="button" class="concept-btn" data-concept="justice">
+                  <span class="concept-name">Justice / Fairness</span>
+                  <span class="concept-hint">Equitable access &amp; algorithmic bias</span>
+                </button>
+                <button type="button" class="concept-btn" data-concept="checklist">
+                  <span class="concept-name">Checklist Compliance</span>
+                  <span class="concept-hint">Operational sign-off &amp; speed</span>
+                </button>
+              </div>
+
+              <div class="predict-feedback" id="predictFeedback" role="status" aria-live="polite"></div>
+            </section>
+
+            <!-- STAGE 2: CHOOSE YOUR COORDINATOR ACTION -->
+            <section class="stage-block hidden" id="stage2Block">
+              <div class="stage-heading-row">
+                <h2 class="stage-label"><span class="stage-num">2</span> Choose Your Action Before Rollout</h2>
+                <span class="stage-sub">How do you respond in the meeting?</span>
+              </div>
+
+              <div class="decision-grid">
+                <!-- Path A -->
+                <button type="button" class="decision-card path-a" id="btnChoosePathA">
+                  <div>
+                    <span class="path-badge">Option A &bull; Stay Silent / Approve</span>
+                    <h3 class="decision-title">Approve Workflow as Routine Efficiency Upgrade</h3>
+                    <p class="decision-desc">
+                      Assume follow-up calls are inherently helpful to patients. Sign off on the operational checklist so the engineering team can launch on schedule.
+                    </p>
+                  </div>
+                  <span class="decision-cta">Simulate Option A Outcome &rarr;</span>
+                </button>
+
+                <!-- Path B -->
+                <button type="button" class="decision-card path-b" id="btnChoosePathB">
+                  <div>
+                    <span class="path-badge">Option B &bull; Name &amp; Route Risk</span>
+                    <h3 class="decision-title">Flag Consent-Boundary Concern &amp; Route to Ethics Committee</h3>
+                    <p class="decision-desc">
+                      Name the undisclosed AI referral concern out loud and route it to senior clinical and ethics leaders for pre-rollout review—without trying to rewrite hospital policy alone.
+                    </p>
+                  </div>
+                  <span class="decision-cta">Simulate Option B Outcome &rarr;</span>
+                </button>
+              </div>
+            </section>
+
+            <!-- STAGE 3: BRANCHING CONSEQUENCE SIMULATION -->
+            <section class="stage-block hidden" id="stage3Block">
+              <div class="stage-heading-row">
+                <h2 class="stage-label"><span class="stage-num">3</span> Downstream Consequence Simulation</h2>
+                <span class="stage-sub">Explore the 3-phase impact of your choice</span>
+              </div>
+
+              <div class="outcome-wrapper">
+                <div class="outcome-banner theme-emerald" id="outcomeBanner">
+                  <div class="outcome-headline">
+                    <h3 id="outcomeTitle">Path B Selected: Consent-Boundary Concern Flagged &amp; Routed</h3>
+                    <p id="outcomeSubtitle">Proactive identification before patients are impacted</p>
+                  </div>
+                  <div class="outcome-controls">
+                    <button type="button" class="btn-secondary" id="btnSwitchPath">Switch to Option A</button>
+                    <button type="button" class="btn-secondary" id="btnComparePaths">Compare Side-by-Side</button>
+                    <button type="button" class="btn-secondary" id="btnResetSim">&#8634; Reset</button>
+                  </div>
+                </div>
+
+                <!-- Interactive Single-Path 3-Phase View -->
+                <div id="singlePathView">
+                  <div class="phase-tabs" role="tablist">
+                    <button type="button" class="phase-tab-btn active" data-phase="0" role="tab" aria-selected="true">
+                      Phase 1: Immediate Meeting
+                    </button>
+                    <button type="button" class="phase-tab-btn" data-phase="1" role="tab" aria-selected="false">
+                      Phase 2: 3 Months Post-Rollout
+                    </button>
+                    <button type="button" class="phase-tab-btn" data-phase="2" role="tab" aria-selected="false">
+                      Phase 3: Career &amp; Oversight Impact
+                    </button>
+                  </div>
+
+                  <div class="outcome-body">
+                    <!-- Simulated Communication Artifact -->
+                    <div class="artifact-box">
+                      <div class="artifact-header">
+                        <span class="artifact-channel" id="artifactChannel">&#128172; #ethics-review-committee</span>
+                        <span id="artifactTimestamp">During Meeting</span>
+                      </div>
+                      <p class="artifact-message" id="artifactMessage"></p>
+                    </div>
+
+                    <!-- 3 Impact Meters -->
+                    <div class="metrics-trio">
+                      <div class="metric-card">
+                        <div class="metric-card-label">Patient Impact</div>
+                        <div class="metric-card-value good" id="metricPatientVal">Protected &amp; Informed</div>
+                        <div class="meter-track">
+                          <div class="meter-fill" id="metricPatientBar" style="width: 95%; background: #059669;"></div>
+                        </div>
+                        <p class="metric-card-note" id="metricPatientNote"></p>
+                      </div>
+
+                      <div class="metric-card">
+                        <div class="metric-card-label">Leadership &amp; Ethics Trust</div>
+                        <div class="metric-card-value good" id="metricTrustVal">High Confidence</div>
+                        <div class="meter-track">
+                          <div class="meter-fill" id="metricTrustBar" style="width: 92%; background: #059669;"></div>
+                        </div>
+                        <p class="metric-card-note" id="metricTrustNote"></p>
+                      </div>
+
+                      <div class="metric-card">
+                        <div class="metric-card-label">Coordinator Role Outcome</div>
+                        <div class="metric-card-value good" id="metricRoleVal">Trusted Oversight</div>
+                        <div class="meter-track">
+                          <div class="meter-fill" id="metricRoleBar" style="width: 90%; background: #059669;"></div>
+                        </div>
+                        <p class="metric-card-note" id="metricRoleNote"></p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Side-by-Side Comparison View (Hidden by default) -->
+                <div class="compare-grid hidden" id="comparePathsView" style="display: none;">
+                  <div class="compare-col col-a">
+                    <h4>&#10060; Option A: Approved Without Flagging</h4>
+                    <ul class="compare-list">
+                      <li>
+                        <strong>Immediate Meeting</strong>
+                        Workflow passes unchallenged; nobody names the missing AI disclosure out loud.
+                      </li>
+                      <li>
+                        <strong>3 Months Post-Rollout</strong>
+                        Patients feel blindsided by unexplained calls; frontline clinicians escalate complaints after harm has occurred.
+                      </li>
+                      <li>
+                        <strong>Coordinator Role Outcome</strong>
+                        Seen as a passive checklist follower; senior staff take over oversight duties while engineering rebuilds the workflow.
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div class="compare-col col-b">
+                    <h4>&#9989; Option B: Named &amp; Routed Risk</h4>
+                    <ul class="compare-list">
+                      <li>
+                        <strong>Immediate Meeting</strong>
+                        Coordinator names the <em>consent-boundary</em> concern; Senior PM halts rollout for Ethics Committee review.
+                      </li>
+                      <li>
+                        <strong>3 Months Post-Rollout</strong>
+                        Workflow launches with transparent AI disclosure; patients make informed choices with zero complaints.
+                      </li>
+                      <li>
+                        <strong>Coordinator Role Outcome</strong>
+                        Earns senior leadership trust for proactive oversight—without needing a philosophy degree or making policy alone.
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Core Pedagogical Reflection -->
+              <div class="reflection-callout">
+                <strong>Key Takeaway:</strong> Entry-level ethics fluency does <em>not</em> mean making final ethics policy judgments—those stay with clinical leaders and ethics committees. It means recognizing when a routine scenario touches a core concept, naming it precisely, and routing it to the people who can act before patients are affected.
+              </div>
+            </section>
+          </div>
+          <!-- END STANDALONE INTERACTIVE SIMULATION WIDGET -->
+
+        </div>
+
+        <!-- 2-Sentence Reflection Takeaway Below Google Sites Embed -->
+        <div class="gsites-outro-block">
+          <h3>Reflection Takeaway</h3>
+          <p>
+            Notice that distinguishing yourself as a trusted coordinator does not require a background in bioethics or the authority to rewrite clinical policy alone. By building a working habit of checking routine AI workflows against core concepts like <strong>consent boundaries</strong> and <strong>patient autonomy</strong>, you catch hidden risks early and route them to decision-makers before patients are harmed.
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Simulated Google Sites Footer -->
+      <footer class="gsites-footer">
+        <span>SC 22: Analyze Healthcare Ethics in AI Projects &bull; Interactive Simulation</span>
+        <span>Built with Google Sites</span>
+      </footer>
+
+    </div>
+  </main>
+
+  <!-- Clipboard Toast Feedback -->
+  <div class="toast-notification" id="toastMsg" role="status" aria-live="polite">
+    Copied! Clean embed HTML is ready to paste into Google Sites.
+  </div>
+
+  <!-- Hidden Textarea Fallback for Reliable Clipboard Copy inside Iframes -->
+  <textarea id="clipboardFallback" aria-hidden="true" style="position:fixed;left:-9999px;top:0;"></textarea>
+
+  <script>
+    /* ==========================================================================
+       SIMULATION CONTENT & BRANCHING DATA
+       ========================================================================== */
+    const conceptFeedbackMap = {
+      consent: {
+        correct: true,
+        html: "<strong>Spot on! Consent Boundaries &amp; Patient Autonomy</strong> is the core concept at stake. Even when an AI referral is intended to help, failing to disclose the algorithm's role removes the patient's ability to understand how their care is being managed and make an informed choice."
+      },
+      beneficence: {
+        correct: false,
+        html: "<strong>Close, but look deeper:</strong> While follow-up calls aim to promote well-being (<em>beneficence</em>), good intentions do not override a patient's right to know how their data is used. The primary issue here is <strong>Consent Boundaries &amp; Patient Autonomy</strong>—whether patients get a real, informed choice."
+      },
+      nonmaleficence: {
+        correct: false,
+        html: "<strong>Not quite the primary trigger:</strong> Avoiding direct clinical harm (<em>nonmaleficence</em>) matters, and silent AI referrals can later erode trust. However, the Senior PM's question (<em>'Where does the patient still get a real choice?'</em>) points directly to <strong>Consent Boundaries &amp; Patient Autonomy</strong>."
+      },
+      justice: {
+        correct: false,
+        html: "<strong>Important lens, different trigger:</strong> <em>Justice / Fairness</em> focuses on whether the AI model treats patient groups equitably. Here, the workflow flaw affects every flagged patient's right to transparency—making <strong>Consent Boundaries &amp; Patient Autonomy</strong> the primary issue."
+      },
+      checklist: {
+        correct: false,
+        html: "<strong>Watch out for the checklist trap!</strong> Treating AI workflows purely as operational checklists is how ethical risks slip into production. Look at the Senior PM's question about patient choice: the concept at stake is <strong>Consent Boundaries &amp; Patient Autonomy</strong>."
+      }
+    };
+
+    const simulationPaths = {
+      A: {
+        bannerTheme: "theme-coral",
+        title: "Option A Selected: Approved Without Flagging",
+        subtitle: "The consent-boundary gap goes unnamed—and shows up later in patients.",
+        switchBtnLabel: "Switch to Option B (Flag Risk)",
+        phases: [
+          {
+            channel: "&#128203; Meeting Minutes &bull; Workflow Sign-Off",
+            timestamp: "Phase 1: Immediate Meeting",
+            message: "<strong>Coordinator Log:</strong> Workflow approved for deployment. No ethical flags raised during pre-rollout check. Engineering proceeds with silent automated patient flagging.",
+            patient: { val: "Uninformed Exposure", pct: 40, cls: "neutral", note: "Patients will receive calls triggered by an AI tool they don't know exists." },
+            trust: { val: "Baseline (Unproven)", pct: 50, cls: "neutral", note: "Seen as a routine checklist executor rather than a proactive risk spotter." },
+            role: { val: "Checklist Follower", pct: 45, cls: "neutral", note: "Missed the opportunity to translate the scenario into an actionable ethics flag." }
+          },
+          {
+            channel: "&#128231; Email Escalation &bull; From: Nursing Operations Lead",
+            timestamp: "Phase 2: 3 Months Post-Rollout",
+            message: "<strong>Subject: Urgent Patient Complaints on AI Outreach Calls</strong><br>\"Several discharged patients are upset after nurses called asking sensitive follow-up questions without explaining why they were flagged. Clinicians were unaware the AI tool wasn't disclosed. Why wasn't this caught before launch?\"",
+            patient: { val: "Trust Eroded & Affected", pct: 18, cls: "bad", note: "Patients felt blindsided; real-world impact occurred well into rollout." },
+            trust: { val: "Eroding Confidence", pct: 28, cls: "bad", note: "Clinicians had to raise the concern independently after rollout." },
+            role: { val: "Reactive Scramble", pct: 25, cls: "bad", note: "Pulled into emergency remediation rather than proactive oversight." }
+          },
+          {
+            channel: "&#128196; Post-Mortem Audit &bull; Ethics Committee Summary",
+            timestamp: "Phase 3: Career & Oversight Impact",
+            message: "<strong>Audit Finding:</strong> Rollout paused for mandatory workflow rebuild to add patient disclosure scripts. Senior program managers reassign future pre-review oversight to other staff while keeping the coordinator on basic checklist tasks.",
+            patient: { val: "Harm Already Realized", pct: 15, cls: "bad", note: "Fixing consent boundaries post-hoc is costly and cannot undo lost patient trust." },
+            trust: { val: "Low Oversight Trust", pct: 20, cls: "bad", note: "Senior leaders noticed the lack of working vocabulary for routine scenarios." },
+            role: { val: "Limited to Checklists", pct: 20, cls: "bad", note: "Trusted oversight work is withheld until ethics literacy is demonstrated." }
+          }
+        ]
+      },
+      B: {
+        bannerTheme: "theme-emerald",
+        title: "Option B Selected: Flagged & Routed Consent-Boundary Concern",
+        subtitle: "Named precisely at the entry level and routed to clinical & ethics decision-makers.",
+        switchBtnLabel: "Switch to Option A (Approve Silently)",
+        phases: [
+          {
+            channel: "&#128172; #ethics-review-committee &bull; Live Meeting Note",
+            timestamp: "Phase 1: Immediate Meeting",
+            message: "<strong>Coordinator:</strong> \"Before we sign off, there's a <em>consent-boundary concern</em> here—patients won't know an AI tool referred them for this call, which affects their autonomy. I'd like to route this to the Ethics Committee for disclosure review before rollout.\"<br><strong>Senior PM:</strong> \"Good catch. Let's pause launch and get clinical ethics sign-off.\"",
+            patient: { val: "Protected Pre-Launch", pct: 95, cls: "good", note: "Rollout paused before any patient is contacted without transparency." },
+            trust: { val: "Immediate Recognition", pct: 82, cls: "good", note: "Senior leaders notice you named the exact concept at stake without overstepping." },
+            role: { val: "Proactive Spotter", pct: 80, cls: "good", note: "Demonstrated strong boundary clarity: identify, name, and route." }
+          },
+          {
+            channel: "&#9989; Ethics Committee Decision &bull; Workflow Revision v2.1",
+            timestamp: "Phase 2: 3 Months Post-Rollout",
+            message: "<strong>Committee Resolution:</strong> Updated nurse call script so patients are told upfront: <em>'Our care team's automated screening tool flagged your chart for a check-in—would you like to continue?'</em> Launch proceeded smoothly with high patient acceptance.",
+            patient: { val: "Informed & Respected", pct: 98, cls: "good", note: "Patients understand the AI's role and retain a real choice in their care." },
+            trust: { val: "Strong Cross-Team Trust", pct: 92, cls: "good", note: "Clinical leads and engineers avoided a costly post-launch rework." },
+            role: { val: "Reliable Bridge", pct: 90, cls: "good", note: "Recognized as a coordinator who translates scenarios into clear action." }
+          },
+          {
+            channel: "&#127942; Quarterly Program Review &bull; Senior Program Manager",
+            timestamp: "Phase 3: Career & Oversight Impact",
+            message: "<strong>Manager Feedback:</strong> \"Because you caught that consent boundary before rollout, we avoided clinician pushback and protected patient trust. We'd like you to lead initial ethics screening for our next two clinical AI pilots.\"",
+            patient: { val: "Zero Preventable Harm", pct: 100, cls: "good", note: "Proactive vocabulary directly safeguarded patient autonomy." },
+            trust: { val: "Trusted Advisor Status", pct: 98, cls: "good", note: "Earned the confidence of clinical leads and the Ethics Committee." },
+            role: { val: "Trusted Oversight Lead", pct: 96, cls: "good", note: "Graduated from routine checklist tracking to high-trust oversight work." }
+          }
+        ]
+      }
+    };
+
+    /* ==========================================================================
+       DOM REFERENCES & STATE
+       ========================================================================== */
+    let selectedPath = null;
+    let activePhaseIdx = 0;
+    let isCompareMode = false;
+
+    const pillStep1 = document.getElementById("pillStep1");
+    const pillStep2 = document.getElementById("pillStep2");
+    const pillStep3 = document.getElementById("pillStep3");
+
+    const conceptGrid = document.getElementById("conceptGrid");
+    const predictFeedback = document.getElementById("predictFeedback");
+    const stage2Block = document.getElementById("stage2Block");
+    const stage3Block = document.getElementById("stage3Block");
+
+    const btnChoosePathA = document.getElementById("btnChoosePathA");
+    const btnChoosePathB = document.getElementById("btnChoosePathB");
+
+    const outcomeBanner = document.getElementById("outcomeBanner");
+    const outcomeTitle = document.getElementById("outcomeTitle");
+    const outcomeSubtitle = document.getElementById("outcomeSubtitle");
+    const btnSwitchPath = document.getElementById("btnSwitchPath");
+    const btnComparePaths = document.getElementById("btnComparePaths");
+    const btnResetSim = document.getElementById("btnResetSim");
+
+    const singlePathView = document.getElementById("singlePathView");
+    const comparePathsView = document.getElementById("comparePathsView");
+    const phaseTabBtns = document.querySelectorAll(".phase-tab-btn");
+
+    /* ==========================================================================
+       STAGE 1: PREDICT CONCEPT HANDLER
+       ========================================================================== */
+    conceptGrid.addEventListener("click", (e) => {
+      const btn = e.target.closest(".concept-btn");
+      if (!btn) return;
+
+      const chosen = btn.getAttribute("data-concept");
+      const info = conceptFeedbackMap[chosen];
+
+      // Clear previous button states
+      conceptGrid.querySelectorAll(".concept-btn").forEach((el) => {
+        el.classList.remove("selected-correct", "selected-wrong");
+      });
+
+      if (info.correct) {
+        btn.classList.add("selected-correct");
+        predictFeedback.className = "predict-feedback visible is-correct";
+      } else {
+        btn.classList.add("selected-wrong");
+        // Also highlight the right concept subtly so learner sees the answer
+        const rightBtn = conceptGrid.querySelector('[data-concept="consent"]');
+        if (rightBtn) rightBtn.classList.add("selected-correct");
+        predictFeedback.className = "predict-feedback visible is-partial";
+      }
+
+      predictFeedback.innerHTML = info.html;
+
+      // Unlock Stage 2
+      pillStep1.classList.remove("active");
+      pillStep1.classList.add("completed");
+      if (!selectedPath) {
+        pillStep2.classList.add("active");
+      }
+      stage2Block.classList.remove("hidden");
+    });
+
+    /* ==========================================================================
+       STAGE 2 & 3: DECISION & CONSEQUENCE RENDERING
+       ========================================================================== */
+    function renderPhaseDetails() {
+      if (!selectedPath) return;
+      const pathData = simulationPaths[selectedPath];
+      const phaseData = pathData.phases[activePhaseIdx];
+
+      // Update Tab Active States
+      phaseTabBtns.forEach((btn, idx) => {
+        const isActive = idx === activePhaseIdx;
+        btn.classList.toggle("active", isActive);
+        btn.setAttribute("aria-selected", isActive ? "true" : "false");
+      });
+
+      // Update Artifact Box
+      document.getElementById("artifactChannel").innerHTML = phaseData.channel;
+      document.getElementById("artifactTimestamp").textContent = phaseData.timestamp;
+      document.getElementById("artifactMessage").innerHTML = phaseData.message;
+
+      // Helper for Meter Colors
+      const colorMap = {
+        good: "#059669",
+        neutral: "#d97706",
+        bad: "#e11d48"
+      };
+
+      // Update Patient Metric
+      const pVal = document.getElementById("metricPatientVal");
+      pVal.textContent = phaseData.patient.val;
+      pVal.className = "metric-card-value " + phaseData.patient.cls;
+      const pBar = document.getElementById("metricPatientBar");
+      pBar.style.width = phaseData.patient.pct + "%";
+      pBar.style.backgroundColor = colorMap[phaseData.patient.cls];
+      document.getElementById("metricPatientNote").textContent = phaseData.patient.note;
+
+      // Update Trust Metric
+      const tVal = document.getElementById("metricTrustVal");
+      tVal.textContent = phaseData.trust.val;
+      tVal.className = "metric-card-value " + phaseData.trust.cls;
+      const tBar = document.getElementById("metricTrustBar");
+      tBar.style.width = phaseData.trust.pct + "%";
+      tBar.style.backgroundColor = colorMap[phaseData.trust.cls];
+      document.getElementById("metricTrustNote").textContent = phaseData.trust.note;
+
+      // Update Role Metric
+      const rVal = document.getElementById("metricRoleVal");
+      rVal.textContent = phaseData.role.val;
+      rVal.className = "metric-card-value " + phaseData.role.cls;
+      const rBar = document.getElementById("metricRoleBar");
+      rBar.style.width = phaseData.role.pct + "%";
+      rBar.style.backgroundColor = colorMap[phaseData.role.cls];
+      document.getElementById("metricRoleNote").textContent = phaseData.role.note;
+    }
+
+    function selectPath(pathKey, keepPhase) {
+      selectedPath = pathKey;
+      if (!keepPhase) {
+        activePhaseIdx = 0;
+      }
+
+      // Highlight Selected Decision Card
+      btnChoosePathA.classList.toggle("active-choice", pathKey === "A");
+      btnChoosePathB.classList.toggle("active-choice", pathKey === "B");
+
+      // Update Step Pills
+      pillStep1.classList.remove("active");
+      pillStep1.classList.add("completed");
+      pillStep2.classList.remove("active");
+      pillStep2.classList.add("completed");
+      pillStep3.classList.add("active");
+
+      // Configure Outcome Banner
+      const pathData = simulationPaths[pathKey];
+      outcomeBanner.className = "outcome-banner " + pathData.bannerTheme;
+      outcomeTitle.textContent = pathData.title;
+      outcomeSubtitle.textContent = pathData.subtitle;
+      btnSwitchPath.textContent = pathData.switchBtnLabel;
+
+      // Ensure Single View is shown unless user is actively comparing
+      if (isCompareMode) {
+        setCompareMode(false);
+      }
+
+      renderPhaseDetails();
+      stage3Block.classList.remove("hidden");
+    }
+
+    function setCompareMode(enable) {
+      isCompareMode = enable;
+      if (enable) {
+        singlePathView.style.display = "none";
+        comparePathsView.style.display = "grid";
+        btnComparePaths.classList.add("btn-compare-active");
+        btnComparePaths.textContent = "Back to Single Path";
+      } else {
+        singlePathView.style.display = "block";
+        comparePathsView.style.display = "none";
+        btnComparePaths.classList.remove("btn-compare-active");
+        btnComparePaths.textContent = "Compare Side-by-Side";
+      }
+    }
+
+    btnChoosePathA.addEventListener("click", () => selectPath("A", false));
+    btnChoosePathB.addEventListener("click", () => selectPath("B", false));
+
+    btnSwitchPath.addEventListener("click", () => {
+      const nextPath = selectedPath === "A" ? "B" : "A";
+      selectPath(nextPath, true);
+    });
+
+    btnComparePaths.addEventListener("click", () => {
+      setCompareMode(!isCompareMode);
+    });
+
+    phaseTabBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        activePhaseIdx = Number(btn.getAttribute("data-phase"));
+        renderPhaseDetails();
+      });
+    });
+
+    btnResetSim.addEventListener("click", () => {
+      selectedPath = null;
+      activePhaseIdx = 0;
+      setCompareMode(false);
+
+      conceptGrid.querySelectorAll(".concept-btn").forEach((el) => {
+        el.classList.remove("selected-correct", "selected-wrong");
+      });
+      predictFeedback.className = "predict-feedback";
+      predictFeedback.innerHTML = "";
+
+      btnChoosePathA.classList.remove("active-choice");
+      btnChoosePathB.classList.remove("active-choice");
+
+      stage2Block.classList.add("hidden");
+      stage3Block.classList.add("hidden");
+
+      pillStep1.className = "step-pill active";
+      pillStep2.className = "step-pill";
+      pillStep3.className = "step-pill";
+    });
+
+    /* ==========================================================================
+       PREVIEW TOOLBAR & CLEAN EMBED HTML EXTRACTOR
+       ========================================================================== */
+    const workspaceStage = document.getElementById("workspaceStage");
+    const btnWidgetView = document.getElementById("btnWidgetView");
+    const btnGsitesView = document.getElementById("btnGsitesView");
+    const btnCopyEmbed = document.getElementById("btnCopyEmbed");
+    const copyBtnText = document.getElementById("copyBtnText");
+    const toastMsg = document.getElementById("toastMsg");
+    const clipboardFallback = document.getElementById("clipboardFallback");
+
+    btnWidgetView.addEventListener("click", () => {
+      workspaceStage.classList.remove("mode-gsites");
+      workspaceStage.classList.add("mode-widget");
+      btnWidgetView.classList.add("active");
+      btnWidgetView.setAttribute("aria-selected", "true");
+      btnGsitesView.classList.remove("active");
+      btnGsitesView.setAttribute("aria-selected", "false");
+    });
+
+    btnGsitesView.addEventListener("click", () => {
+      workspaceStage.classList.remove("mode-widget");
+      workspaceStage.classList.add("mode-gsites");
+      btnGsitesView.classList.add("active");
+      btnGsitesView.setAttribute("aria-selected", "true");
+      btnWidgetView.classList.remove("active");
+      btnWidgetView.setAttribute("aria-selected", "false");
+    });
+
+    function buildCleanEmbedHTML() {
+      // Clone the standalone widget root in its fresh initial state
+      const clone = document.getElementById("standaloneWidgetRoot").cloneNode(true);
+      clone.querySelectorAll(".concept-btn").forEach((el) => {
+        el.classList.remove("selected-correct", "selected-wrong");
+      });
+      const fb = clone.querySelector("#predictFeedback");
+      if (fb) {
+        fb.className = "predict-feedback";
+        fb.innerHTML = "";
+      }
+      clone.querySelectorAll(".decision-card").forEach((el) => {
+        el.classList.remove("active-choice");
+      });
+      const s2 = clone.querySelector("#stage2Block");
+      const s3 = clone.querySelector("#stage3Block");
+      if (s2) s2.classList.add("hidden");
+      if (s3) s3.classList.add("hidden");
+      const p1 = clone.querySelector("#pillStep1");
+      const p2 = clone.querySelector("#pillStep2");
+      const p3 = clone.querySelector("#pillStep3");
+      if (p1) p1.className = "step-pill active";
+      if (p2) p2.className = "step-pill";
+      if (p3) p3.className = "step-pill";
+
+      const widgetMarkup = clone.outerHTML;
+      const serializedFeedback = JSON.stringify(conceptFeedbackMap, null, 2);
+      const serializedPaths = JSON.stringify(simulationPaths, null, 2);
+
+      return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dual-Path Scenario Simulation: The Meeting Choice</title>
+<style>
+  :root {
+    --bg-surface: #ffffff;
+    --bg-subtle: #f8fafc;
+    --text-primary: #0f172a;
+    --text-secondary: #334155;
+    --text-muted: #64748b;
+    --border-light: #e2e8f0;
+    --border-strong: #cbd5e1;
+    --brand-navy: #0f172a;
+    --brand-teal: #0d9488;
+    --brand-teal-soft: #f0fdfa;
+    --brand-blue: #0284c7;
+    --brand-blue-soft: #e0f2fe;
+    --brand-blue-dark: #0c4a6e;
+    --emerald-accent: #059669;
+    --emerald-soft: #ecfdf5;
+    --emerald-border: #a7f3d0;
+    --emerald-text: #065f46;
+    --coral-accent: #e11d48;
+    --coral-soft: #fff1f2;
+    --coral-border: #fecdd3;
+    --coral-text: #9f1239;
+    --amber-accent: #d97706;
+    --amber-soft: #fffbeb;
+    --amber-border: #fde68a;
+    --amber-text: #92400e;
+    --radius-lg: 14px;
+    --radius-md: 10px;
+    --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08);
+    --shadow-md: 0 4px 14px -2px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: transparent;
+    color: var(--text-primary);
+    line-height: 1.5;
+    padding: 8px;
+  }
+  .sim-widget {
+    max-width: 960px;
+    margin: 0 auto;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: 26px;
+  }
+  .sim-header {
+    display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start;
+    gap: 16px; padding-bottom: 18px; margin-bottom: 22px; border-bottom: 1px solid var(--border-light);
+  }
+  .sim-title-area h1 { font-size: 1.32rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+  .sim-title-area p { font-size: 0.9rem; color: var(--text-muted); }
+  .step-tracker {
+    display: flex; align-items: center; gap: 6px; background: var(--bg-subtle);
+    padding: 6px 10px; border-radius: 999px; border: 1px solid var(--border-light);
+  }
+  .step-pill { font-size: 0.76rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; color: var(--text-muted); }
+  .step-pill.active { background: var(--brand-navy); color: #ffffff; }
+  .step-pill.completed { background: var(--emerald-soft); color: var(--emerald-text); }
+  .meeting-brief-card {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 1px solid var(--border-strong); border-left: 5px solid var(--brand-navy);
+    border-radius: var(--radius-md); padding: 20px; margin-bottom: 24px;
+  }
+  .brief-meta-bar {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+    gap: 8px; margin-bottom: 12px; font-size: 0.78rem; color: var(--text-muted); font-weight: 600;
+  }
+  .live-badge {
+    display: inline-flex; align-items: center; gap: 6px; background: #fee2e2; color: #991b1b;
+    padding: 3px 9px; border-radius: 999px; font-weight: 700; font-size: 0.72rem; text-transform: uppercase;
+  }
+  .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #dc2626; }
+  .brief-scenario-text { font-size: 0.96rem; color: var(--text-secondary); margin-bottom: 14px; line-height: 1.6; }
+  .pm-quote-box {
+    background: #ffffff; border: 1px solid var(--border-light); border-radius: 8px;
+    padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start; box-shadow: var(--shadow-sm);
+  }
+  .pm-avatar {
+    width: 36px; height: 36px; border-radius: 50%; background: var(--brand-navy); color: #ffffff;
+    font-weight: 700; font-size: 0.82rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .pm-speaker { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); margin-bottom: 2px; }
+  .pm-quote { font-size: 0.98rem; font-weight: 700; color: var(--text-primary); font-style: italic; }
+  .stage-block { margin-bottom: 24px; animation: fadeSlideIn 0.35s ease forwards; }
+  .stage-block.hidden { display: none; }
+  @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .stage-heading-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .stage-label { font-size: 1.02rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+  .stage-num {
+    background: var(--brand-teal); color: #ffffff; width: 24px; height: 24px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700;
+  }
+  .stage-sub { font-size: 0.84rem; color: var(--text-muted); }
+  .concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .concept-btn {
+    background: #ffffff; border: 2px solid var(--border-light); border-radius: var(--radius-md);
+    padding: 12px 14px; text-align: left; cursor: pointer; transition: all 0.18s ease;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .concept-btn:hover { border-color: var(--brand-teal); background: var(--brand-teal-soft); }
+  .concept-btn.selected-correct { border-color: var(--emerald-accent); background: var(--emerald-soft); }
+  .concept-btn.selected-wrong { border-color: var(--amber-accent); background: var(--amber-soft); }
+  .concept-name { font-size: 0.88rem; font-weight: 700; color: var(--text-primary); }
+  .concept-hint { font-size: 0.77rem; color: var(--text-muted); }
+  .predict-feedback { border-radius: var(--radius-md); padding: 14px 16px; font-size: 0.9rem; line-height: 1.55; display: none; }
+  .predict-feedback.visible { display: block; }
+  .predict-feedback.is-correct { background: var(--emerald-soft); border: 1px solid var(--emerald-border); color: var(--emerald-text); }
+  .predict-feedback.is-partial { background: var(--amber-soft); border: 1px solid var(--amber-border); color: var(--amber-text); }
+  .decision-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .decision-card {
+    background: #ffffff; border: 2px solid var(--border-strong); border-radius: var(--radius-lg);
+    padding: 20px; cursor: pointer; text-align: left; transition: all 0.2s ease;
+    display: flex; flex-direction: column; justify-content: space-between; gap: 14px;
+  }
+  .decision-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .decision-card.path-a:hover, .decision-card.path-a.active-choice {
+    border-color: var(--coral-accent); background: linear-gradient(to bottom, var(--coral-soft) 0%, #ffffff 45%);
+  }
+  .decision-card.path-b:hover, .decision-card.path-b.active-choice {
+    border-color: var(--emerald-accent); background: linear-gradient(to bottom, var(--emerald-soft) 0%, #ffffff 45%);
+  }
+  .path-badge {
+    display: inline-block; font-size: 0.74rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.05em; padding: 4px 10px; border-radius: 999px; margin-bottom: 8px;
+  }
+  .path-a .path-badge { background: #ffe4e6; color: var(--coral-text); }
+  .path-b .path-badge { background: #d1fae5; color: var(--emerald-text); }
+  .decision-title { font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+  .decision-desc { font-size: 0.89rem; color: var(--text-secondary); line-height: 1.55; }
+  .decision-cta { font-size: 0.83rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+  .path-a .decision-cta { color: var(--coral-accent); }
+  .path-b .decision-cta { color: var(--emerald-accent); }
+  .outcome-wrapper { border: 1px solid var(--border-strong); border-radius: var(--radius-lg); overflow: hidden; background: #ffffff; }
+  .outcome-banner { padding: 18px 22px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; }
+  .outcome-banner.theme-coral { background: var(--coral-soft); border-bottom: 1px solid var(--coral-border); }
+  .outcome-banner.theme-emerald { background: var(--emerald-soft); border-bottom: 1px solid var(--emerald-border); }
+  .outcome-headline h3 { font-size: 1.14rem; font-weight: 700; color: var(--text-primary); }
+  .outcome-headline p { font-size: 0.86rem; color: var(--text-secondary); }
+  .outcome-controls { display: flex; flex-wrap: wrap; gap: 8px; }
+  .btn-secondary {
+    background: #ffffff; color: var(--text-primary); border: 1px solid var(--border-strong);
+    padding: 7px 13px; border-radius: 7px; font-size: 0.82rem; font-weight: 600; cursor: pointer;
+  }
+  .btn-secondary:hover { background: #f1f5f9; }
+  .btn-compare-active { background: var(--brand-navy); color: #ffffff; border-color: var(--brand-navy); }
+  .phase-tabs { display: grid; grid-template-columns: repeat(3, 1fr); background: #f8fafc; border-bottom: 1px solid var(--border-light); }
+  .phase-tab-btn {
+    background: transparent; border: none; border-bottom: 3px solid transparent; padding: 13px 12px;
+    font-size: 0.84rem; font-weight: 700; color: var(--text-muted); cursor: pointer; text-align: center;
+  }
+  .phase-tab-btn.active { color: var(--brand-navy); background: #ffffff; border-bottom-color: var(--brand-teal); }
+  .outcome-body { padding: 22px; }
+  .artifact-box { background: #f8fafc; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 16px 18px; margin-bottom: 20px; }
+  .artifact-header {
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
+    gap: 6px; padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px solid var(--border-light);
+    font-size: 0.78rem; color: var(--text-muted);
+  }
+  .artifact-channel { font-weight: 700; color: var(--text-primary); }
+  .artifact-message { font-size: 0.92rem; color: var(--text-secondary); line-height: 1.6; }
+  .metrics-trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .metric-card { background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 14px; }
+  .metric-card-label { font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); margin-bottom: 6px; }
+  .metric-card-value { font-size: 0.96rem; font-weight: 700; margin-bottom: 8px; }
+  .metric-card-value.good { color: var(--emerald-accent); }
+  .metric-card-value.bad { color: var(--coral-accent); }
+  .metric-card-value.neutral { color: var(--amber-accent); }
+  .meter-track { width: 100%; height: 8px; background: #e2e8f0; border-radius: 999px; overflow: hidden; margin-bottom: 8px; }
+  .meter-fill { height: 100%; border-radius: 999px; transition: width 0.4s ease; }
+  .metric-card-note { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.45; }
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; padding: 22px; }
+  .compare-col { border-radius: var(--radius-md); padding: 18px; border: 1px solid var(--border-light); }
+  .compare-col.col-a { background: var(--coral-soft); border-color: var(--coral-border); }
+  .compare-col.col-b { background: var(--emerald-soft); border-color: var(--emerald-border); }
+  .compare-col h4 { font-size: 1rem; font-weight: 700; margin-bottom: 12px; color: var(--text-primary); }
+  .compare-list { list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 0.88rem; color: var(--text-secondary); }
+  .compare-list li { background: #ffffff; padding: 10px 12px; border-radius: 7px; border: 1px solid rgba(0, 0, 0, 0.06); }
+  .compare-list strong { display: block; font-size: 0.78rem; text-transform: uppercase; margin-bottom: 2px; color: var(--text-primary); }
+  .reflection-callout {
+    margin-top: 20px; background: var(--brand-blue-soft); border-left: 4px solid var(--brand-blue);
+    padding: 14px 18px; border-radius: 0 8px 8px 0; font-size: 0.9rem; color: var(--brand-blue-dark); line-height: 1.55;
+  }
+  @media (max-width: 720px) {
+    .decision-grid, .metrics-trio, .compare-grid, .phase-tabs { grid-template-columns: 1fr; }
+    .sim-widget { padding: 18px; }
+  }
+</style>
+</head>
+<body>
+${widgetMarkup}
+<script>
+  const conceptFeedbackMap = ${serializedFeedback};
+  const simulationPaths = ${serializedPaths};
+
+  let selectedPath = null;
+  let activePhaseIdx = 0;
+  let isCompareMode = false;
+
+  const pillStep1 = document.getElementById("pillStep1");
+  const pillStep2 = document.getElementById("pillStep2");
+  const pillStep3 = document.getElementById("pillStep3");
+  const conceptGrid = document.getElementById("conceptGrid");
+  const predictFeedback = document.getElementById("predictFeedback");
+  const stage2Block = document.getElementById("stage2Block");
+  const stage3Block = document.getElementById("stage3Block");
+  const btnChoosePathA = document.getElementById("btnChoosePathA");
+  const btnChoosePathB = document.getElementById("btnChoosePathB");
+  const outcomeBanner = document.getElementById("outcomeBanner");
+  const outcomeTitle = document.getElementById("outcomeTitle");
+  const outcomeSubtitle = document.getElementById("outcomeSubtitle");
+  const btnSwitchPath = document.getElementById("btnSwitchPath");
+  const btnComparePaths = document.getElementById("btnComparePaths");
+  const btnResetSim = document.getElementById("btnResetSim");
+  const singlePathView = document.getElementById("singlePathView");
+  const comparePathsView = document.getElementById("comparePathsView");
+  const phaseTabBtns = document.querySelectorAll(".phase-tab-btn");
+
+  conceptGrid.addEventListener("click", (e) => {
+    const btn = e.target.closest(".concept-btn");
+    if (!btn) return;
+    const chosen = btn.getAttribute("data-concept");
+    const info = conceptFeedbackMap[chosen];
+    conceptGrid.querySelectorAll(".concept-btn").forEach((el) => el.classList.remove("selected-correct", "selected-wrong"));
+    if (info.correct) {
+      btn.classList.add("selected-correct");
+      predictFeedback.className = "predict-feedback visible is-correct";
+    } else {
+      btn.classList.add("selected-wrong");
+      const rightBtn = conceptGrid.querySelector('[data-concept="consent"]');
+      if (rightBtn) rightBtn.classList.add("selected-correct");
+      predictFeedback.className = "predict-feedback visible is-partial";
+    }
+    predictFeedback.innerHTML = info.html;
+    pillStep1.classList.remove("active");
+    pillStep1.classList.add("completed");
+    if (!selectedPath) pillStep2.classList.add("active");
+    stage2Block.classList.remove("hidden");
+  });
+
+  function renderPhaseDetails() {
+    if (!selectedPath) return;
+    const pathData = simulationPaths[selectedPath];
+    const phaseData = pathData.phases[activePhaseIdx];
+    phaseTabBtns.forEach((btn, idx) => {
+      const isActive = idx === activePhaseIdx;
+      btn.classList.toggle("active", isActive);
+      btn.setAttribute("aria-selected", isActive ? "true" : "false");
+    });
+    document.getElementById("artifactChannel").innerHTML = phaseData.channel;
+    document.getElementById("artifactTimestamp").textContent = phaseData.timestamp;
+    document.getElementById("artifactMessage").innerHTML = phaseData.message;
+    const colorMap = { good: "#059669", neutral: "#d97706", bad: "#e11d48" };
+
+    const pVal = document.getElementById("metricPatientVal");
+    pVal.textContent = phaseData.patient.val;
+    pVal.className = "metric-card-value " + phaseData.patient.cls;
+    const pBar = document.getElementById("metricPatientBar");
+    pBar.style.width = phaseData.patient.pct + "%";
+    pBar.style.backgroundColor = colorMap[phaseData.patient.cls];
+    document.getElementById("metricPatientNote").textContent = phaseData.patient.note;
+
+    const tVal = document.getElementById("metricTrustVal");
+    tVal.textContent = phaseData.trust.val;
+    tVal.className = "metric-card-value " + phaseData.trust.cls;
+    const tBar = document.getElementById("metricTrustBar");
+    tBar.style.width = phaseData.trust.pct + "%";
+    tBar.style.backgroundColor = colorMap[phaseData.trust.cls];
+    document.getElementById("metricTrustNote").textContent = phaseData.trust.note;
+
+    const rVal = document.getElementById("metricRoleVal");
+    rVal.textContent = phaseData.role.val;
+    rVal.className = "metric-card-value " + phaseData.role.cls;
+    const rBar = document.getElementById("metricRoleBar");
+    rBar.style.width = phaseData.role.pct + "%";
+    rBar.style.backgroundColor = colorMap[phaseData.role.cls];
+    document.getElementById("metricRoleNote").textContent = phaseData.role.note;
+  }
+
+  function selectPath(pathKey, keepPhase) {
+    selectedPath = pathKey;
+    if (!keepPhase) activePhaseIdx = 0;
+    btnChoosePathA.classList.toggle("active-choice", pathKey === "A");
+    btnChoosePathB.classList.toggle("active-choice", pathKey === "B");
+    pillStep1.classList.remove("active");
+    pillStep1.classList.add("completed");
+    pillStep2.classList.remove("active");
+    pillStep2.classList.add("completed");
+    pillStep3.classList.add("active");
+    const pathData = simulationPaths[pathKey];
+    outcomeBanner.className = "outcome-banner " + pathData.bannerTheme;
+    outcomeTitle.textContent = pathData.title;
+    outcomeSubtitle.textContent = pathData.subtitle;
+    btnSwitchPath.textContent = pathData.switchBtnLabel;
+    if (isCompareMode) setCompareMode(false);
+    renderPhaseDetails();
+    stage3Block.classList.remove("hidden");
+  }
+
+  function setCompareMode(enable) {
+    isCompareMode = enable;
+    if (enable) {
+      singlePathView.style.display = "none";
+      comparePathsView.style.display = "grid";
+      btnComparePaths.classList.add("btn-compare-active");
+      btnComparePaths.textContent = "Back to Single Path";
+    } else {
+      singlePathView.style.display = "block";
+      comparePathsView.style.display = "none";
+      btnComparePaths.classList.remove("btn-compare-active");
+      btnComparePaths.textContent = "Compare Side-by-Side";
+    }
+  }
+
+  btnChoosePathA.addEventListener("click", () => selectPath("A", false));
+  btnChoosePathB.addEventListener("click", () => selectPath("B", false));
+  btnSwitchPath.addEventListener("click", () => selectPath(selectedPath === "A" ? "B" : "A", true));
+  btnComparePaths.addEventListener("click", () => setCompareMode(!isCompareMode));
+  phaseTabBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      activePhaseIdx = Number(btn.getAttribute("data-phase"));
+      renderPhaseDetails();
+    });
+  });
+  btnResetSim.addEventListener("click", () => {
+    selectedPath = null;
+    activePhaseIdx = 0;
+    setCompareMode(false);
+    conceptGrid.querySelectorAll(".concept-btn").forEach((el) => el.classList.remove("selected-correct", "selected-wrong"));
+    predictFeedback.className = "predict-feedback";
+    predictFeedback.innerHTML = "";
+    btnChoosePathA.classList.remove("active-choice");
+    btnChoosePathB.classList.remove("active-choice");
+    stage2Block.classList.add("hidden");
+    stage3Block.classList.add("hidden");
+    pillStep1.className = "step-pill active";
+    pillStep2.className = "step-pill";
+    pillStep3.className = "step-pill";
+  });
+<\/script>
+</body>
+</html>`;
+    }
+
+    function showToast(message) {
+      toastMsg.textContent = message;
+      toastMsg.classList.add("show");
+      setTimeout(() => {
+        toastMsg.classList.remove("show");
+      }, 3200);
+    }
+
+    btnCopyEmbed.addEventListener("click", () => {
+      try {
+        const cleanCode = buildCleanEmbedHTML();
+        clipboardFallback.value = cleanCode;
+        clipboardFallback.select();
+        clipboardFallback.setSelectionRange(0, 99999);
+        const copied = document.execCommand("copy");
+        if (copied) {
+          btnCopyEmbed.classList.add("copied");
+          copyBtnText.textContent = "Copied!";
+          showToast("Copied! Clean embed HTML is ready to paste into Google Sites.");
+          setTimeout(() => {
+            btnCopyEmbed.classList.remove("copied");
+            copyBtnText.textContent = "Copy Embed HTML";
+          }, 2400);
+        } else {
+          showToast("Embed HTML prepared. Press Ctrl+C / Cmd+C to copy.");
+        }
+      } catch (err) {
+        showToast("Unable to access clipboard automatically.");
+      }
+    });
+  </script>
+</body>
+</html>
