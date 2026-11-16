@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cost of Delay: Entry-Level Ethics Fluency Timeline</title>
+<style>
+  :root {
+    --bg-page: #f8fafc;
+    --bg-card: #ffffff;
+    --text-main: #0f172a;
+    --text-muted: #475569;
+    --border: #e2e8f0;
+    --primary: #0284c7;
+    --primary-light: #e0f2fe;
+    
+    --track-a-accent: #059669;
+    --track-a-bg: #ecfdf5;
+    --track-a-border: #a7f3d0;
+    
+    --track-b-accent: #dc2626;
+    --track-b-bg: #fef2f2;
+    --track-b-border: #fecaca;
+    
+    --warn-accent: #d97706;
+    --radius: 12px;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-page);
+    color: var(--text-main);
+    line-height: 1.5;
+    padding: 20px;
+  }
+
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px;
+  }
+
+  header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .title-group h1 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 4px;
+  }
+
+  .title-group p {
+    font-size: 0.92rem;
+    color: var(--text-muted);
+  }
+
+  .play-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 16px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease;
+  }
+
+  .play-btn:hover {
+    background: #0369a1;
+  }
+
+  .play-btn:active {
+    transform: scale(0.98);
+  }
+
+  /* Timeline Control Section */
+  .timeline-controls {
+    background: #f1f5f9;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 24px;
+  }
+
+  .timeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+
+  .current-phase {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--primary);
+  }
+
+  .hint-text {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+  }
+
+  .slider-wrapper {
+    position: relative;
+    margin-bottom: 14px;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 8px;
+    background: #cbd5e1;
+    border-radius: 4px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--primary);
+    border: 3px solid #ffffff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.25);
+    cursor: pointer;
+    transition: transform 0.15s ease;
+  }
+
+  input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.12);
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--primary);
+    border: 3px solid #ffffff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.25);
+    cursor: pointer;
+  }
+
+  .milestone-pills {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+  }
+
+  .pill-btn {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 6px 4px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s ease;
+  }
+
+  .pill-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+
+  .pill-btn.active {
+    background: var(--primary);
+    color: #ffffff;
+    border-color: var(--primary);
+  }
+
+  /* Comparison Grid */
+  .comparison-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 720px) {
+    .comparison-grid {
+      grid-template-columns: 1fr;
+    }
+    .milestone-pills {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .track-card {
+    border-radius: var(--radius);
+    padding: 22px;
+    border: 2px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.25s ease;
+  }
+
+  .track-card.track-a {
+    background: linear-gradient(to bottom, var(--track-a-bg) 0%, #ffffff 32%);
+    border-color: var(--track-a-border);
+  }
+
+  .track-card.track-b {
+    background: linear-gradient(to bottom, var(--track-b-bg) 0%, #ffffff 32%);
+    border-color: var(--track-b-border);
+  }
+
+  .card-top {
+    margin-bottom: 18px;
+  }
+
+  .coordinator-badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 10px;
+  }
+
+  .track-a .coordinator-badge {
+    background: #d1fae5;
+    color: #065f46;
+  }
+
+  .track-b .coordinator-badge {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+
+  .status-title {
+    font-size: 1.12rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text-main);
+  }
+
+  .vocab-tag {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    background: #f1f5f9;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+  }
+
+  .track-a .vocab-tag {
+    background: #ecfdf5;
+    color: #047857;
+    border-color: #6ee7b7;
+  }
+
+  .action-desc {
+    font-size: 0.93rem;
+    color: #334155;
+    min-height: 72px;
+  }
+
+  /* Gauges */
+  .metrics-box {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .metric-row {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .metric-label-group {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  .bar-bg {
+    width: 100%;
+    height: 10px;
+    background: #e2e8f0;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.3s ease;
+  }
+
+  /* Takeaway Callout */
+  .takeaway-banner {
+    background: var(--primary-light);
+    border-left: 4px solid var(--primary);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    font-size: 0.9rem;
+    color: #0c4a6e;
+  }
+
+  .takeaway-banner strong {
+    font-weight: 700;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="title-group">
+      <h1>Cost of Delay: Why Entry-Level Ethics Fluency Matters</h1>
+      <p>Scrub the 6-month timeline to compare how naming a single ethics concept changes patient and project outcomes.</p>
+    </div>
+    <button class="play-btn" id="playToggle" aria-label="Play timeline progression">
+      <span id="playIcon">&#9654;</span> <span id="playLabel">Play Progression</span>
+    </button>
+  </header>
+
+  <section class="timeline-controls" aria-label="Timeline Controls">
+    <div class="timeline-header">
+      <span class="current-phase" id="phaseHeading">Month 0: Ethics Review Meeting</span>
+      <span class="hint-text">Drag slider or click a month below</span>
+    </div>
+    <div class="slider-wrapper">
+      <input type="range" id="monthSlider" min="0" max="6" value="0" step="1" aria-label="Select month from 0 to 6">
+    </div>
+    <div class="milestone-pills" id="milestonePills"></div>
+  </section>
+
+  <section class="comparison-grid">
+    <!-- Coordinator A -->
+    <article class="track-card track-a">
+      <div class="card-top">
+        <span class="coordinator-badge">Coordinator A &bull; Ethics Fluent</span>
+        <h2 class="status-title" id="aTitle">Flags Consent-Boundary Concern</h2>
+        <div class="vocab-tag" id="aTag">Concept: Consent Boundaries &amp; Autonomy</div>
+        <p class="action-desc" id="aDesc">Recognizes that referring high-risk patients via AI without disclosure removes patient choice. Names the issue and routes it to the Ethics Committee.</p>
+      </div>
+      <div class="metrics-box">
+        <div class="metric-row">
+          <div class="metric-label-group">
+            <span>Senior Leadership Trust</span>
+            <span id="aTrustVal">70%</span>
+          </div>
+          <div class="bar-bg">
+            <div class="bar-fill" id="aTrustBar" style="width: 70%; background: #059669;"></div>
+          </div>
+        </div>
+        <div class="metric-row">
+          <div class="metric-label-group">
+            <span>Patient Harm &amp; Rollout Risk</span>
+            <span id="aRiskVal">15% (Low)</span>
+          </div>
+          <div class="bar-bg">
+            <div class="bar-fill" id="aRiskBar" style="width: 15%; background: #10b981;"></div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- Coordinator B -->
+    <article class="track-card track-b">
+      <div class="card-top">
+        <span class="coordinator-badge">Coordinator B &bull; Missing Fluency</span>
+        <h2 class="status-title" id="bTitle">Approves Routine Workflow Change</h2>
+        <div class="vocab-tag" id="bTag">Concept: Unrecognized</div>
+        <p class="action-desc" id="bDesc">Views the undisclosed AI referral tool purely as an operational efficiency upgrade. Signs off without flagging patient disclosure gaps.</p>
+      </div>
+      <div class="metrics-box">
+        <div class="metric-row">
+          <div class="metric-label-group">
+            <span>Senior Leadership Trust</span>
+            <span id="bTrustVal">50%</span>
+          </div>
+          <div class="bar-bg">
+            <div class="bar-fill" id="bTrustBar" style="width: 50%; background: #64748b;"></div>
+          </div>
+        </div>
+        <div class="metric-row">
+          <div class="metric-label-group">
+            <span>Patient Harm &amp; Rollout Risk</span>
+            <span id="bRiskVal">20% (Latent)</span>
+          </div>
+          <div class="bar-bg">
+            <div class="bar-fill" id="bRiskBar" style="width: 20%; background: #f59e0b;"></div>
+          </div>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <div class="takeaway-banner" id="takeawayBox">
+    <strong>Divergence Point (Month 0):</strong> Both coordinators have equal intelligence and effort. Coordinator A doesn't make the final policy decision—they simply recognize, name, and route the risk before launch.
+  </div>
+</div>
+
+<script>
+  const timelineData = [
+    {
+      shortLabel: "M0: Review",
+      phaseTitle: "Month 0: Ethics Review Meeting",
+      takeaway: "Divergence Point (Month 0): Both coordinators have equal intelligence and effort. Coordinator A doesn't make the final policy decision—they simply recognize, name, and route the risk before launch.",
+      a: {
+        title: "Flags Consent-Boundary Concern",
+        tag: "Vocabulary: Consent Boundaries & Autonomy",
+        desc: "Recognizes that referring high-risk patients via AI without disclosure removes patient choice. Names the issue out loud and routes it to the Ethics Committee.",
+        trust: 70,
+        risk: 15,
+        riskLabel: "15% (Low)"
+      },
+      b: {
+        title: "Approves Routine Workflow Change",
+        tag: "Vocabulary: Unrecognized",
+        desc: "Views the undisclosed AI referral tool purely as an operational efficiency upgrade. Signs off on the checklist without noticing the missing patient disclosure.",
+        trust: 50,
+        risk: 20,
+        riskLabel: "20% (Latent)"
+      }
+    },
+    {
+      shortLabel: "M1: Revision",
+      phaseTitle: "Month 1: Pre-Deployment Design",
+      takeaway: "Low-Cost Fix: Addressing ethical boundaries during pre-deployment takes minor workflow adjustments, whereas fixing them post-launch requires systemic overhaul.",
+      a: {
+        title: "Ethics Committee Revises Workflow",
+        tag: "Action: Routed to Decision-Makers",
+        desc: "Clinical leads add a clear disclosure script so patients know an AI flagged their chart and can opt out of follow-up calls.",
+        trust: 85,
+        risk: 5,
+        riskLabel: "5% (Minimal)"
+      },
+      b: {
+        title: "Engineering Builds Silent Referral",
+        tag: "Action: Unchecked Build",
+        desc: "The engineering team builds the automated outreach pipeline with zero patient-facing transparency or consent prompts.",
+        trust: 50,
+        risk: 35,
+        riskLabel: "35% (Rising)"
+      }
+    },
+    {
+      shortLabel: "M2: Launch",
+      phaseTitle: "Month 2: Live System Rollout",
+      takeaway: "Hidden Debt: At launch, Coordinator B's project looks faster—but unaddressed ethical debt is now live in patient care.",
+      a: {
+        title: "Transparent Go-Live",
+        tag: "Status: Aligned with Patient Autonomy",
+        desc: "System launches smoothly. Outreach callers transparently explain the AI screening process, and patients make informed choices.",
+        trust: 90,
+        risk: 5,
+        riskLabel: "5% (Minimal)"
+      },
+      b: {
+        title: "Undisclosed AI Goes Live",
+        tag: "Status: Consent Boundary Crossed",
+        desc: "High-risk patients begin receiving unexpected clinical follow-up calls triggered silently by the algorithm.",
+        trust: 50,
+        risk: 60,
+        riskLabel: "60% (High)"
+      }
+    },
+    {
+      shortLabel: "M3: Adoption",
+      phaseTitle: "Month 3: Early Clinical Adoption",
+      takeaway: "Patient Impact Emerges: When ethics fluency is missing at entry level, the real-world cost shows up downstream in patient confusion and anxiety.",
+      a: {
+        title: "High Patient & Clinician Confidence",
+        tag: "Outcome: Sustained Trust",
+        desc: "Routine monitoring confirms high patient engagement and zero complaints regarding automated outreach.",
+        trust: 92,
+        risk: 5,
+        riskLabel: "5% (Minimal)"
+      },
+      b: {
+        title: "Patient Confusion & Alarm",
+        tag: "Outcome: Eroding Trust",
+        desc: "Patients feel blindsided when asked personal health questions without understanding why or how they were selected.",
+        trust: 45,
+        risk: 70,
+        riskLabel: "70% (Severe)"
+      }
+    },
+    {
+      shortLabel: "M4: Escalation",
+      phaseTitle: "Month 4: Clinician Escalation",
+      takeaway: "Role Differentiation: Senior leaders notice who catches issues proactively versus who requires external intervention to spot risks.",
+      a: {
+        title: "Trusted with Complex Oversight",
+        tag: "Career Impact: Expanded Responsibility",
+        desc: "Senior program managers invite Coordinator A to lead pre-review screenings for upcoming AI diagnostic pilots.",
+        trust: 95,
+        risk: 5,
+        riskLabel: "5% (Minimal)"
+      },
+      b: {
+        title: "Nurses & Physicians Escalate Issue",
+        tag: "Crisis: Clinical Pushback",
+        desc: "Frontline clinicians independently escalate complaints to hospital leadership after discovering patients were never informed of AI involvement.",
+        trust: 30,
+        risk: 85,
+        riskLabel: "85% (Critical)"
+      }
+    },
+    {
+      shortLabel: "M5: Audit",
+      phaseTitle: "Month 5: Governance & Audit",
+      takeaway: "Reactive vs. Proactive: Retroactive ethics audits stall clinical operations and damage team credibility.",
+      a: {
+        title: "Smooth Quarterly Ethics Review",
+        tag: "Governance: Compliant",
+        desc: "Presents clear audit logs demonstrating documented patient consent boundaries and transparent AI disclosure.",
+        trust: 98,
+        risk: 5,
+        riskLabel: "5% (Minimal)"
+      },
+      b: {
+        title: "Rollout Halted for Emergency Audit",
+        tag: "Governance: Suspended",
+        desc: "The Ethics Committee suspends the tool mid-rollout to investigate non-transparent patient routing and potential harm.",
+        trust: 20,
+        risk: 90,
+        riskLabel: "90% (Critical)"
+      }
+    },
+    {
+      shortLabel: "M6: Outcome",
+      phaseTitle: "Month 6: Long-Term Organizational Impact",
+      takeaway: "Key Takeaway: Entry-level ethics fluency transforms routine checklist monitoring into trusted oversight that protects patients.",
+      a: {
+        title: "Trusted Oversight Partner",
+        tag: "Result: Zero Patient Harm",
+        desc: "Recognized as a reliable bridge between technical teams and ethics committees. Reassigned from routine checklists to strategic oversight.",
+        trust: 100,
+        risk: 0,
+        riskLabel: "0% (Protected)"
+      },
+      b: {
+        title: "Costly Rebuild & Restricted Scope",
+        tag: "Result: Patients Affected",
+        desc: "Engineering must rebuild the workflow post-hoc. Coordinator B is kept on basic checklist tasks while senior staff take over review duties.",
+        trust: 15,
+        risk: 95,
+        riskLabel: "95% (Realized Harm)"
+      }
+    }
+  ];
+
+  const slider = document.getElementById("monthSlider");
+  const pillsContainer = document.getElementById("milestonePills");
+  const playToggle = document.getElementById("playToggle");
+  const playIcon = document.getElementById("playIcon");
+  const playLabel = document.getElementById("playLabel");
+
+  let currentMonth = 0;
+  let playInterval = null;
+
+  // Build quick-jump milestone buttons
+  timelineData.forEach((item, index) => {
+    const btn = document.createElement("button");
+    btn.className = "pill-btn" + (index === 0 ? " active" : "");
+    btn.textContent = item.shortLabel;
+    btn.type = "button";
+    btn.addEventListener("click", () => {
+      stopAutoPlay();
+      updateView(index);
+    });
+    pillsContainer.appendChild(btn);
+  });
+
+  function getRiskColor(risk) {
+    if (risk <= 15) return "#10b981";
+    if (risk <= 40) return "#f59e0b";
+    return "#dc2626";
+  }
+
+  function getTrustColor(trust, isTrackA) {
+    if (trust >= 70) return "#059669";
+    if (trust >= 45) return "#64748b";
+    return "#dc2626";
+  }
+
+  function updateView(index) {
+    currentMonth = Number(index);
+    slider.value = currentMonth;
+    const data = timelineData[currentMonth];
+
+    // Update header & takeaway
+    document.getElementById("phaseHeading").textContent = data.phaseTitle;
+    document.getElementById("takeawayBox").innerHTML = `<strong>${data.takeaway.split(":")[0]}:</strong>${data.takeaway.substring(data.takeaway.indexOf(":") + 1)}`;
+
+    // Update Track A
+    document.getElementById("aTitle").textContent = data.a.title;
+    document.getElementById("aTag").textContent = data.a.tag;
+    document.getElementById("aDesc").textContent = data.a.desc;
+    document.getElementById("aTrustVal").textContent = `${data.a.trust}%`;
+    const aTrustBar = document.getElementById("aTrustBar");
+    aTrustBar.style.width = `${data.a.trust}%`;
+    aTrustBar.style.backgroundColor = getTrustColor(data.a.trust, true);
+
+    document.getElementById("aRiskVal").textContent = data.a.riskLabel;
+    const aRiskBar = document.getElementById("aRiskBar");
+    aRiskBar.style.width = `${Math.max(data.a.risk, 3)}%`;
+    aRiskBar.style.backgroundColor = getRiskColor(data.a.risk);
+
+    // Update Track B
+    document.getElementById("bTitle").textContent = data.b.title;
+    document.getElementById("bTag").textContent = data.b.tag;
+    document.getElementById("bDesc").textContent = data.b.desc;
+    document.getElementById("bTrustVal").textContent = `${data.b.trust}%`;
+    const bTrustBar = document.getElementById("bTrustBar");
+    bTrustBar.style.width = `${data.b.trust}%`;
+    bTrustBar.style.backgroundColor = getTrustColor(data.b.trust, false);
+
+    document.getElementById("bRiskVal").textContent = data.b.riskLabel;
+    const bRiskBar = document.getElementById("bRiskBar");
+    bRiskBar.style.width = `${data.b.risk}%`;
+    bRiskBar.style.backgroundColor = getRiskColor(data.b.risk);
+
+    // Update active pill
+    const pills = pillsContainer.querySelectorAll(".pill-btn");
+    pills.forEach((pill, idx) => {
+      pill.classList.toggle("active", idx === currentMonth);
+    });
+  }
+
+  function stopAutoPlay() {
+    if (playInterval) {
+      clearInterval(playInterval);
+      playInterval = null;
+      playIcon.innerHTML = "&#9654;";
+      playLabel.textContent = "Play Progression";
+    }
+  }
+
+  playToggle.addEventListener("click", () => {
+    if (playInterval) {
+      stopAutoPlay();
+      return;
+    }
+
+    if (currentMonth >= timelineData.length - 1) {
+      updateView(0);
+    }
+
+    playIcon.innerHTML = "&#10074;&#10074;";
+    playLabel.textContent = "Pause";
+
+    playInterval = setInterval(() => {
+      if (currentMonth < timelineData.length - 1) {
+        updateView(currentMonth + 1);
+      } else {
+        stopAutoPlay();
+      }
+    }, 2200);
+  });
+
+  slider.addEventListener("input", (e) => {
+    stopAutoPlay();
+    updateView(e.target.value);
+  });
+
+  // Initialize
+  updateView(0);
+</script>
+</body>
+</html>
