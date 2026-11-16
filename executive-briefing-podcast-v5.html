@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Executive Briefing Podcast Studio</title>
+<title>Listen to This Reading — Executive Briefing Podcast</title>
 <style>
   :root {
-    --bg-app: #f8fafc;
+    --bg-app: #ffffff;
     --bg-surface: #ffffff;
-    --bg-subtle: #f1f5f9;
+    --bg-subtle: #f8fafc;
     --text-primary: #0f172a;
     --text-secondary: #334155;
     --text-muted: #64748b;
@@ -16,9 +16,9 @@
     --border-strong: #cbd5e1;
 
     --brand-navy: #0f172a;
-    --brand-blue: #0284c7;
-    --brand-blue-hover: #0369a1;
-    --brand-blue-soft: #e0f2fe;
+    --brand-blue: #0056d2;
+    --brand-blue-hover: #00419e;
+    --brand-blue-soft: #eff6ff;
     --brand-teal: #0d9488;
     --brand-teal-soft: #f0fdfa;
     --brand-teal-border: #99f6e4;
@@ -35,10 +35,9 @@
     --warn-border: #fde68a;
     --warn-text: #92400e;
 
-    --radius-lg: 14px;
-    --radius-md: 10px;
+    --radius-lg: 12px;
+    --radius-md: 8px;
     --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08);
-    --shadow-md: 0 4px 14px -2px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
   }
 
   * {
@@ -52,17 +51,16 @@
     background-color: var(--bg-app);
     color: var(--text-primary);
     line-height: 1.5;
-    padding: 16px;
+    padding: 4px;
   }
 
   .studio-container {
-    max-width: 980px;
+    max-width: 960px;
     margin: 0 auto;
     background: var(--bg-surface);
     border: 1px solid var(--border-light);
     border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-md);
-    padding: 26px;
+    padding: 20px 22px;
   }
 
   .studio-header {
@@ -70,22 +68,22 @@
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: flex-start;
-    gap: 14px;
-    padding-bottom: 18px;
-    margin-bottom: 22px;
+    gap: 12px;
+    padding-bottom: 14px;
+    margin-bottom: 16px;
     border-bottom: 1px solid var(--border-light);
   }
 
   .header-title h1 {
-    font-size: 1.32rem;
+    font-size: 1.22rem;
     font-weight: 700;
     color: var(--text-primary);
     margin-bottom: 4px;
   }
 
   .header-title p {
-    font-size: 0.9rem;
-    color: var(--text-muted);
+    font-size: 0.88rem;
+    color: var(--text-secondary);
   }
 
   .badge-pill {
@@ -95,61 +93,47 @@
     background: var(--brand-teal-soft);
     color: #115e59;
     border: 1px solid var(--brand-teal-border);
-    padding: 5px 12px;
+    padding: 4px 11px;
     border-radius: 999px;
-    font-size: 0.78rem;
+    font-size: 0.76rem;
     font-weight: 700;
   }
 
-  .input-mode-tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+  .input-panel {
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
     margin-bottom: 14px;
   }
 
-  .tab-btn {
-    background: var(--bg-subtle);
-    border: 1px solid var(--border-strong);
-    color: var(--text-secondary);
-    padding: 9px 15px;
-    border-radius: 8px;
+  .panel-header-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .panel-label {
     font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .clear-link {
+    background: none;
+    border: none;
+    color: var(--brand-blue);
+    font-size: 0.8rem;
     font-weight: 600;
     cursor: pointer;
     font-family: inherit;
   }
 
-  .tab-btn:hover {
-    border-color: var(--brand-blue);
-    color: var(--brand-blue);
-  }
-
-  .tab-btn.active {
-    background: var(--brand-navy);
-    color: #ffffff;
-    border-color: var(--brand-navy);
-  }
-
-  .input-panel {
-    display: none;
-    background: #f8fafc;
-    border: 1px solid var(--border-light);
-    border-radius: var(--radius-md);
-    padding: 18px;
-    margin-bottom: 18px;
-  }
-
-  .input-panel.active {
-    display: block;
-  }
-
-  .panel-label {
-    display: block;
-    font-size: 0.86rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 6px;
+  .clear-link:hover {
+    text-decoration: underline;
   }
 
   .panel-hint {
@@ -160,8 +144,8 @@
 
   textarea.source-textarea {
     width: 100%;
-    min-height: 155px;
-    padding: 12px 14px;
+    min-height: 135px;
+    padding: 11px 13px;
     border: 1px solid var(--border-strong);
     border-radius: 8px;
     font-family: inherit;
@@ -172,54 +156,9 @@
     resize: vertical;
   }
 
-  .file-dropzone {
-    border: 2px dashed var(--border-strong);
-    border-radius: 10px;
-    background: #ffffff;
-    padding: 26px 18px;
-    text-align: center;
-    cursor: pointer;
-  }
-
-  .file-dropzone:hover,
-  .file-dropzone.dragover {
+  textarea.source-textarea:focus {
+    outline: 2px solid #93c5fd;
     border-color: var(--brand-blue);
-    background: #f0f9ff;
-  }
-
-  .dropzone-title {
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 4px;
-  }
-
-  .dropzone-sub {
-    font-size: 0.82rem;
-    color: var(--text-muted);
-  }
-
-  .file-status {
-    margin-top: 10px;
-    font-size: 0.84rem;
-    font-weight: 600;
-    color: var(--brand-teal);
-  }
-
-  .url-input-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-
-  .url-input-row input[type="url"] {
-    flex: 1;
-    min-width: 240px;
-    padding: 10px 12px;
-    border: 1px solid var(--border-strong);
-    border-radius: 8px;
-    font-size: 0.9rem;
-    background: #ffffff;
   }
 
   .status-banner {
@@ -241,39 +180,33 @@
     color: var(--warn-text);
   }
 
-  .status-banner.info {
-    background: var(--brand-blue-soft);
-    border: 1px solid #bae6fd;
-    color: #0c4a6e;
-  }
-
   .config-bar {
     display: flex;
     flex-direction: column;
-    gap: 14px;
-    padding: 16px 18px;
+    gap: 12px;
+    padding: 14px 16px;
     background: var(--bg-subtle);
     border: 1px solid var(--border-light);
     border-radius: var(--radius-md);
-    margin-bottom: 14px;
+    margin-bottom: 12px;
   }
 
   .voice-selectors {
     display: flex;
     flex-wrap: wrap;
-    gap: 14px;
+    gap: 12px;
   }
 
   .control-group {
     display: flex;
     flex-direction: column;
     gap: 5px;
-    min-width: 230px;
+    min-width: 220px;
     flex: 1;
   }
 
   .control-group label {
-    font-size: 0.75rem;
+    font-size: 0.74rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -289,17 +222,17 @@
   .control-group select {
     flex: 1;
     min-width: 0;
-    padding: 8px 10px;
+    padding: 7px 10px;
     border: 1px solid var(--border-strong);
     border-radius: 7px;
-    font-size: 0.84rem;
+    font-size: 0.83rem;
     background: #ffffff;
     color: var(--text-primary);
     font-family: inherit;
   }
 
   .btn-preview {
-    padding: 8px 10px;
+    padding: 7px 10px;
     border-radius: 7px;
     border: 1px solid var(--border-strong);
     background: #ffffff;
@@ -322,8 +255,8 @@
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
-    gap: 12px;
-    padding-top: 8px;
+    gap: 10px;
+    padding-top: 10px;
     border-top: 1px solid var(--border-light);
   }
 
@@ -335,9 +268,9 @@
   }
 
   .btn {
-    padding: 10px 18px;
+    padding: 9px 16px;
     border-radius: 8px;
-    font-size: 0.88rem;
+    font-size: 0.86rem;
     font-weight: 700;
     cursor: pointer;
     border: 1px solid transparent;
@@ -366,11 +299,6 @@
     background: #f1f5f9;
   }
 
-  .btn-dark {
-    background: var(--brand-navy);
-    color: #ffffff;
-  }
-
   .persona-note {
     font-size: 0.78rem;
     color: var(--text-secondary);
@@ -378,7 +306,7 @@
     border: 1px solid var(--border-light);
     border-radius: 8px;
     padding: 8px 12px;
-    margin-bottom: 18px;
+    margin-bottom: 14px;
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
@@ -398,8 +326,8 @@
     background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
     color: #ffffff;
     border-radius: var(--radius-lg);
-    padding: 20px 22px;
-    margin-bottom: 20px;
+    padding: 18px 20px;
+    margin-bottom: 18px;
   }
 
   .deck-top {
@@ -407,8 +335,8 @@
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
+    gap: 10px;
+    margin-bottom: 14px;
   }
 
   .now-speaking {
@@ -420,7 +348,7 @@
   .speaker-indicator {
     padding: 4px 10px;
     border-radius: 999px;
-    font-size: 0.75rem;
+    font-size: 0.74rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -444,7 +372,7 @@
   }
 
   .briefing-stats {
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     color: #cbd5e1;
   }
 
@@ -452,17 +380,17 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 14px;
+    gap: 8px;
+    margin-bottom: 12px;
   }
 
   .transport-btn {
     background: #ffffff;
     color: #0f172a;
     border: none;
-    border-radius: 8px;
-    padding: 8px 14px;
-    font-size: 0.84rem;
+    border-radius: 7px;
+    padding: 7px 13px;
+    font-size: 0.83rem;
     font-weight: 700;
     cursor: pointer;
     font-family: inherit;
@@ -493,7 +421,7 @@
 
   .progress-track {
     width: 100%;
-    height: 8px;
+    height: 7px;
     background: #334155;
     border-radius: 999px;
     overflow: hidden;
@@ -511,7 +439,7 @@
   .progress-labels {
     display: flex;
     justify-content: space-between;
-    font-size: 0.76rem;
+    font-size: 0.75rem;
     color: #94a3b8;
   }
 
@@ -521,32 +449,32 @@
     justify-content: space-between;
     align-items: center;
     gap: 10px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
   }
 
   .script-header h2 {
-    font-size: 1.05rem;
+    font-size: 1rem;
     font-weight: 700;
     color: var(--text-primary);
   }
 
   .script-hint {
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     color: var(--text-muted);
   }
 
   .dialogue-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    max-height: 430px;
+    gap: 10px;
+    max-height: 410px;
     overflow-y: auto;
     padding-right: 4px;
   }
 
   .turn-card {
-    border-radius: 10px;
-    padding: 14px 16px;
+    border-radius: 9px;
+    padding: 12px 15px;
     border: 1px solid var(--border-light);
     background: #ffffff;
     cursor: pointer;
@@ -570,11 +498,11 @@
     justify-content: space-between;
     align-items: center;
     gap: 8px;
-    margin-bottom: 6px;
+    margin-bottom: 5px;
   }
 
   .speaker-tag {
-    font-size: 0.76rem;
+    font-size: 0.74rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -595,7 +523,7 @@
   }
 
   .pause-tag {
-    font-size: 0.74rem;
+    font-size: 0.73rem;
     font-weight: 600;
     color: var(--text-muted);
     background: var(--bg-subtle);
@@ -605,7 +533,7 @@
   }
 
   .turn-text {
-    font-size: 0.92rem;
+    font-size: 0.9rem;
     color: var(--text-secondary);
     line-height: 1.55;
   }
@@ -616,49 +544,25 @@
 <div class="studio-container">
   <header class="studio-header">
     <div class="header-title">
-      <h1>Executive Briefing Podcast Generator</h1>
-      <p>Convert course readings, copied web articles, or uploaded notes into a natural 2–3 minute two-person audio briefing.</p>
+      <h1>Listen to This Reading &mdash; Audio Briefing</h1>
+      <p>Copy the reading content above and paste it below to listen to a 2&ndash;3 minute executive discussion between a host and a subject expert.</p>
     </div>
-    <span class="badge-pill">&#127911; Natural Prosody &amp; Neural Voices</span>
+    <span class="badge-pill">&#127911; Audio Study Companion</span>
   </header>
 
-  <div class="input-mode-tabs" role="tablist" aria-label="Content Source Type">
-    <button type="button" class="tab-btn active" id="tabBtn-text" onclick="switchTab('text')">&#128221; Paste Reading / Web Text</button>
-    <button type="button" class="tab-btn" id="tabBtn-file" onclick="switchTab('file')">&#128193; Upload File (.txt, .md, .html, .csv)</button>
-    <button type="button" class="tab-btn" id="tabBtn-url" onclick="switchTab('url')">&#127760; Fetch Article URL</button>
-  </div>
-
-  <div class="input-panel active" id="panel-text">
-    <label class="panel-label" for="sourceTextInput">Paste Course Reading or Copied Web Text</label>
-    <p class="panel-hint">Paste any article, lecture notes, or copied web page content. Navigation menus and boilerplate clutter are automatically cleaned.</p>
-    <textarea id="sourceTextInput" class="source-textarea" placeholder="Paste your course reading or web article text here, or click 'Load Sample Reading' below to test immediately..."></textarea>
-  </div>
-
-  <div class="input-panel" id="panel-file">
-    <label class="panel-label">Upload Local Reading File</label>
-    <p class="panel-hint">Supports plain text (.txt), Markdown (.md), HTML (.html/.htm), and CSV (.csv) files processed 100% locally in your browser.</p>
-    <div class="file-dropzone" id="fileDropzone" onclick="document.getElementById('fileInput').click()">
-      <div class="dropzone-title">Click to choose a file or drag &amp; drop it here</div>
-      <div class="dropzone-sub">No data leaves your browser</div>
-      <input type="file" id="fileInput" accept=".txt,.md,.markdown,.html,.htm,.csv,.json" hidden onchange="onFileSelected(event)" />
-      <div class="file-status" id="fileStatus"></div>
+  <div class="input-panel">
+    <div class="panel-header-row">
+      <label class="panel-label" for="sourceTextInput">Step 1: Paste Your Coursera Reading Text</label>
+      <button type="button" class="clear-link" onclick="clearSourceText()">Clear Text</button>
     </div>
-  </div>
-
-  <div class="input-panel" id="panel-url">
-    <label class="panel-label" for="urlInput">Import Public Web Page URL</label>
-    <p class="panel-hint">Attempts a direct client-side fetch of the page text. If a site blocks browser cross-origin (CORS) requests, simply copy the text from the page and paste it in the first tab.</p>
-    <div class="url-input-row">
-      <input type="url" id="urlInput" placeholder="https://example.org/healthcare-ai-ethics-article" />
-      <button type="button" class="btn btn-dark" id="fetchUrlBtn" onclick="fetchArticleUrl()">Extract Web Text</button>
-    </div>
-    <div class="status-banner" id="urlStatusBanner"></div>
+    <p class="panel-hint">Select and copy the reading text above (Ctrl+C / Cmd+C), then paste it below (Ctrl+V / Cmd+V). Formatting and web clutter are cleaned automatically.</p>
+    <textarea id="sourceTextInput" class="source-textarea" placeholder="Paste the Coursera reading text here, or click 'Load Sample Reading' below to preview..."></textarea>
   </div>
 
   <div class="config-bar">
     <div class="voice-selectors">
       <div class="control-group">
-        <label for="hostVoiceSelect">Host (Female &bull; Asian &bull; Age ~35)</label>
+        <label for="hostVoiceSelect">Host Voice (Maya Lin)</label>
         <div class="select-with-preview">
           <select id="hostVoiceSelect">
             <option value="persona_host_maya">Maya Lin — Female, Asian, ~35</option>
@@ -668,7 +572,7 @@
       </div>
 
       <div class="control-group">
-        <label for="expertVoiceSelect">Subject Expert (White &bull; Age ~30)</label>
+        <label for="expertVoiceSelect">Subject Expert Voice (Dr. Liam Carter)</label>
         <div class="select-with-preview">
           <select id="expertVoiceSelect">
             <option value="persona_expert_liam">Dr. Liam Carter — White, ~30</option>
@@ -677,7 +581,7 @@
         </div>
       </div>
 
-      <div class="control-group" style="max-width: 240px;">
+      <div class="control-group" style="max-width: 230px;">
         <label for="pauseStyleSelect">Conversational Rhythm</label>
         <select id="pauseStyleSelect">
           <option value="conversational" selected>Natural Dialogue Rhythm</option>
@@ -690,24 +594,24 @@
     <div class="config-footer-row">
       <div class="action-buttons">
         <button type="button" class="btn btn-secondary" id="loadSampleBtn" onclick="loadSampleReading()">Load Sample Reading</button>
-        <button type="button" class="btn btn-primary" id="generatePodcastBtn" onclick="generatePodcast()">&#127897; Generate Podcast Briefing</button>
+        <button type="button" class="btn btn-primary" id="generatePodcastBtn" onclick="generatePodcast()">&#127897; Generate Audio Briefing</button>
       </div>
     </div>
   </div>
 
   <div class="persona-note" id="voiceDiagnostics">
-    <span><strong>Active Cast:</strong> <strong>Host:</strong> Maya Lin (Female, Asian, ~35) &nbsp;|&nbsp; <strong>Subject Expert:</strong> Dr. Liam Carter (White, ~30)</span>
+    <span><strong>Briefing Cast:</strong> <strong>Host:</strong> Maya Lin &nbsp;|&nbsp; <strong>Subject Expert:</strong> Dr. Liam Carter</span>
     <span id="neuralEngineBadge" style="color: #0f766e; font-weight: 600;">Detecting natural neural voices...</span>
   </div>
 
-  <div class="status-banner" id="mainStatusBanner" style="margin-bottom: 18px;"></div>
+  <div class="status-banner" id="mainStatusBanner" style="margin-bottom: 14px;"></div>
 
-  <section class="player-section" id="playerSection" aria-label="Podcast Player and Transcript">
+  <section class="player-section" id="playerSection" aria-label="Audio Briefing Player and Transcript">
     <div class="player-deck">
       <div class="deck-top">
         <div class="now-speaking">
           <span class="speaker-indicator" id="liveSpeakerBadge">Ready</span>
-          <span id="liveStatusText" style="font-size: 0.92rem; font-weight: 600;">Press Play to start the 2–3 minute executive briefing</span>
+          <span id="liveStatusText" style="font-size: 0.9rem; font-weight: 600;">Press Play to listen to your reading briefing</span>
         </div>
         <div class="briefing-stats" id="briefingStats">0 turns &bull; ~2.5 min</div>
       </div>
@@ -739,8 +643,8 @@
     </div>
 
     <div class="script-header">
-      <h2>Generated Two-Person Briefing Script</h2>
-      <span class="script-hint">Click any dialogue card below to jump directly to that segment</span>
+      <h2>Audio Briefing Transcript</h2>
+      <span class="script-hint">Click any dialogue card to jump directly to that section</span>
     </div>
 
     <div class="dialogue-list" id="dialogueList"></div>
@@ -775,22 +679,24 @@
   var bestHostVoiceIndex = -1;
   var bestExpertVoiceIndex = -1;
 
-  function switchTab(tabName) {
-    var tabs = ["text", "file", "url"];
-    for (var i = 0; i < tabs.length; i++) {
-      var name = tabs[i];
-      var btn = document.getElementById("tabBtn-" + name);
-      var panel = document.getElementById("panel-" + name);
-      if (btn) btn.classList.toggle("active", name === tabName);
-      if (panel) panel.classList.toggle("active", name === tabName);
-    }
-  }
-
-  function switchToTextTabWithContent(cleanedText) {
-    document.getElementById("sourceTextInput").value = cleanedText;
+  function clearSourceText() {
+    stopPlayback(true);
+    document.getElementById("sourceTextInput").value = "";
+    document.getElementById("playerSection").classList.remove("active");
     var banner = document.getElementById("mainStatusBanner");
     banner.className = "status-banner";
-    switchTab("text");
+    notifyCourseraHeight();
+  }
+
+  function notifyCourseraHeight() {
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({
+          type: "SET_HEIGHT",
+          data: { height: document.documentElement.scrollHeight + "px" }
+        }, "*");
+      }
+    } catch (e) {}
   }
 
   function cleanWebOrRawText(raw) {
@@ -816,7 +722,9 @@
       /^related articles$/i,
       /^advertisement$/i,
       /^sign in|log in|register$/i,
-      /^copyright/i
+      /^copyright/i,
+      /^mark as completed$/i,
+      /^like$|^dislike$|^report an issue$/i
     ];
 
     var normalized = text.split(CR).join("");
@@ -841,91 +749,12 @@
     return cleanedLines.join(NL + NL);
   }
 
-  function handleUploadedFile(file) {
-    var fileStatus = document.getElementById("fileStatus");
-    var reader = new FileReader();
-    reader.onload = function(event) {
-      var cleaned = cleanWebOrRawText(event.target.result);
-      var wordCount = cleaned ? cleaned.split(/\s+/).length : 0;
-      fileStatus.textContent = "Loaded '" + file.name + "' (" + wordCount + " words). Switched to editor.";
-      switchToTextTabWithContent(cleaned);
-    };
-    reader.onerror = function() {
-      fileStatus.textContent = "Could not read file. Please try a plain text (.txt or .md) file.";
-    };
-    reader.readAsText(file);
-  }
-
-  function onFileSelected(event) {
-    if (event.target.files && event.target.files[0]) {
-      handleUploadedFile(event.target.files[0]);
-    }
-  }
-
-  (function setupDragAndDrop() {
-    var dropzone = document.getElementById("fileDropzone");
-    if (!dropzone) return;
-    dropzone.addEventListener("dragover", function(e) {
-      e.preventDefault();
-      dropzone.classList.add("dragover");
-    });
-    dropzone.addEventListener("dragleave", function() {
-      dropzone.classList.remove("dragover");
-    });
-    dropzone.addEventListener("drop", function(e) {
-      e.preventDefault();
-      dropzone.classList.remove("dragover");
-      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
-        handleUploadedFile(e.dataTransfer.files[0]);
-      }
-    });
-  })();
-
-  function fetchArticleUrl() {
-    var urlInput = document.getElementById("urlInput");
-    var urlStatusBanner = document.getElementById("urlStatusBanner");
-    var url = urlInput.value.trim();
-
-    if (!url) {
-      urlStatusBanner.className = "status-banner show warn";
-      urlStatusBanner.textContent = "Please enter a valid http:// or https:// URL first.";
-      return;
-    }
-
-    urlStatusBanner.className = "status-banner show info";
-    urlStatusBanner.textContent = "Fetching web page content directly from browser...";
-
-    fetch(url)
-      .then(function(response) {
-        if (!response.ok) {
-          throw new Error("HTTP status " + response.status);
-        }
-        return response.text();
-      })
-      .then(function(htmlText) {
-        var cleaned = cleanWebOrRawText(htmlText);
-        if (cleaned.length < 80) {
-          throw new Error("Insufficient readable article text extracted.");
-        }
-        urlStatusBanner.className = "status-banner show info";
-        urlStatusBanner.textContent = "Article text extracted successfully! Review in the text editor and generate your briefing.";
-        switchToTextTabWithContent(cleaned);
-      })
-      .catch(function() {
-        urlStatusBanner.className = "status-banner show warn";
-        urlStatusBanner.innerHTML =
-          "<strong>Direct fetch blocked by website security (CORS):</strong> Most news sites and LMS portals block external browser scripts from reading URLs directly. Simply open the page, select and copy the article text (Ctrl+A / Ctrl+C), and paste it into the <strong>Paste Reading / Web Text</strong> tab—our parser will automatically strip web clutter.";
-      });
-  }
-
   function loadSampleReading() {
-    switchToTextTabWithContent(sampleReadingText);
+    document.getElementById("sourceTextInput").value = sampleReadingText;
+    var banner = document.getElementById("mainStatusBanner");
+    banner.className = "status-banner";
   }
 
-  /* ==========================================================================
-     STRICT NEURAL VOICE FILTERING & PERSONA SCORING
-     Blocks legacy robotic voices (David/Zira/Mark/eSpeak) when neural voices exist
-     ========================================================================== */
   function scoreNeuralQuality(voice) {
     var name = (voice.name || "").toLowerCase();
     var score = 0;
@@ -949,7 +778,6 @@
       score += 75;
     }
 
-    // Strongly penalize legacy robotic voices
     if (name.indexOf("espeak") !== -1 || name.indexOf("desktop") !== -1 || name.indexOf("david") !== -1 || name.indexOf("zira") !== -1 || name.indexOf("mark") !== -1 || name.indexOf("george") !== -1 || name.indexOf("hazel") !== -1) {
       score -= 120;
     }
@@ -1021,7 +849,6 @@
     }
     var pool = englishVoices.length ? englishVoices : rawVoices;
 
-    // Filter out robotic legacy voices if high-quality neural voices are present
     var neuralOnly = pool.filter(function(v) { return scoreNeuralQuality(v) >= 60; });
     availableVoices = neuralOnly.length >= 2 ? neuralOnly : pool;
 
@@ -1057,12 +884,12 @@
     var expertVoiceObj = availableVoices[bestExpertVoiceIndex];
 
     hostSelect.add(new Option(
-      "Auto Best: Maya Lin (Female, Asian, ~35) [" + (hostVoiceObj ? hostVoiceObj.name : "Natural") + "]",
+      "Auto Best: Maya Lin [" + (hostVoiceObj ? hostVoiceObj.name : "Natural") + "]",
       "persona_host_maya"
     ));
 
     expertSelect.add(new Option(
-      "Auto Best: Dr. Liam Carter (White, ~30) [" + (expertVoiceObj ? expertVoiceObj.name : "Natural") + "]",
+      "Auto Best: Dr. Liam Carter [" + (expertVoiceObj ? expertVoiceObj.name : "Natural") + "]",
       "persona_expert_liam"
     ));
 
@@ -1094,10 +921,10 @@
     var diagBadge = document.getElementById("neuralEngineBadge");
     var hasNeural = indexed.length > 0 && indexed[0].quality >= 70;
     if (hasNeural) {
-      diagBadge.textContent = "✓ Neural Human Voices (" + hostVoiceObj.name + " & " + expertVoiceObj.name + ")";
+      diagBadge.textContent = "✓ Neural Voices Ready (" + hostVoiceObj.name + " & " + expertVoiceObj.name + ")";
       diagBadge.style.color = "#0f766e";
     } else {
-      diagBadge.textContent = "Local OS voices detected — open in Edge/Chrome for neural audio";
+      diagBadge.textContent = "Standard browser voices active (use Chrome or Edge for best neural audio)";
       diagBadge.style.color = "#b45309";
     }
   }
@@ -1109,10 +936,6 @@
     setTimeout(populateVoices, 1200);
   }
 
-  /* ==========================================================================
-     NATURAL SPOKEN CONVERSATIONAL POLISH
-     Converts stiff written prose into natural spoken English with contractions
-     ========================================================================== */
   function makeSpokenNatural(text) {
     return text
       .replace(/\bLet us\b/g, "Let's")
@@ -1134,16 +957,10 @@
       .replace(/\bWe are\b/g, "We're");
   }
 
-  /* ==========================================================================
-     CONTEXT-AWARE PROSODY & PUNCTUATION PAUSE CHUNKER
-     Splits dialogue into natural breath segments and calculates realistic
-     human pause durations based on punctuation, questions, and emphasis.
-     ========================================================================== */
   function splitIntoProsodySegments(text, isHost) {
     var mode = document.getElementById("pauseStyleSelect").value;
     var mult = mode === "brisk" ? 0.72 : (mode === "deliberate" ? 1.32 : 1.0);
 
-    // Split on sentence-ending punctuation, em-dashes, semicolons, and colons
     var rawParts = text.match(/[^.!?;:—]+[.!?;:—]+(?:\s|$)|[^.!?;:—]+$/g) || [text];
     var segments = [];
 
@@ -1157,41 +974,38 @@
       var isSemicolon = lastChar === ";";
       var wordCount = part.split(/\s+/).length;
 
-      // Determine natural pause after this phrase (ms)
       var pauseMs = 340;
       if (isQuestion) {
-        pauseMs = 520; // Thoughtful beat after asking a question
+        pauseMs = 520;
       } else if (isEmDash) {
-        pauseMs = 260; // Dramatic/explanatory beat on em-dash or colon
+        pauseMs = 260;
       } else if (isSemicolon) {
         pauseMs = 230;
       } else if (wordCount >= 16) {
-        pauseMs = 460; // Longer breath after a dense sentence
+        pauseMs = 460;
       } else {
-        pauseMs = 310; // Standard natural sentence breath
+        pauseMs = 310;
       }
 
-      // If this is the final segment of the turn, the turn's handoff pause handles the gap
       if (i === rawParts.length - 1) {
         pauseMs = 0;
       } else {
         pauseMs = Math.round(pauseMs * mult);
       }
 
-      // Compute natural pitch & rate inflection per phrase
       var pitchShift = 0;
       var rateScale = 1.0;
 
       if (isQuestion) {
-        pitchShift = 0.045; // Subtle upward inflection at end of questions
+        pitchShift = 0.045;
         rateScale = 1.01;
       } else if (i === rawParts.length - 1) {
-        pitchShift = -0.025; // Grounded downward cadence at the end of a thought
+        pitchShift = -0.025;
         rateScale = 0.97;
       } else if (wordCount >= 18) {
-        rateScale = 0.95; // Slightly slower, clearer articulation on dense ideas
+        rateScale = 0.95;
       } else if (wordCount <= 5) {
-        rateScale = 1.04; // Snappier conversational interjection ("Thanks, Maya.", "Precisely, Maya.")
+        rateScale = 1.04;
       }
 
       segments.push({
@@ -1315,7 +1129,6 @@
     var mode = document.getElementById("pauseStyleSelect").value;
     var multipliers = { brisk: 0.72, conversational: 1.0, deliberate: 1.38 };
     var mult = multipliers[mode] || 1.0;
-    // Tighter, realistic conversational handoffs (650ms–880ms) instead of robotic 1.2s dead air
     var base = { intro: 720, question: 620, insight: 820, outro: 500 };
     return Math.round((base[type] || 700) * mult);
   }
@@ -1500,14 +1313,12 @@
     }
 
     if (isHost) {
-      // Maya Lin: Female, Asian, ~35 years — poised, warm mid-30s host register
       if (bestHostVoiceIndex >= 0 && availableVoices[bestHostVoiceIndex]) {
         utterance.voice = availableVoices[bestHostVoiceIndex];
       }
       utterance.pitch = 1.04 + pitchShift;
       utterance.rate = baseRate * 1.01 * rateScale;
     } else {
-      // Dr. Liam Carter: White, ~30 years — clear, grounded specialist cadence
       if (bestExpertVoiceIndex >= 0 && availableVoices[bestExpertVoiceIndex]) {
         utterance.voice = availableVoices[bestExpertVoiceIndex];
       }
@@ -1519,7 +1330,7 @@
   function speakTurn(index) {
     if (!isPlaying || index >= dialogueTurns.length) {
       stopPlayback(true);
-      document.getElementById("liveStatusText").textContent = "Executive briefing complete.";
+      document.getElementById("liveStatusText").textContent = "Audio briefing complete.";
       return;
     }
 
@@ -1533,7 +1344,7 @@
     document.getElementById("liveStatusText").textContent = "Speaking turn " + (index + 1) + " of " + dialogueTurns.length + "...";
 
     if (!("speechSynthesis" in window)) {
-      document.getElementById("liveStatusText").textContent = "Your browser does not support Web Speech synthesis. Read the generated script below.";
+      document.getElementById("liveStatusText").textContent = "Your browser does not support audio synthesis. Read the generated transcript below.";
       return;
     }
 
@@ -1641,7 +1452,8 @@
     var banner = document.getElementById("mainStatusBanner");
     if (!raw) {
       banner.className = "status-banner show warn";
-      banner.textContent = "Please paste reading text, upload a file, or click 'Load Sample Reading' first.";
+      banner.textContent = "Please paste the Coursera reading text above, or click 'Load Sample Reading' to preview.";
+      notifyCourseraHeight();
       return;
     }
     banner.className = "status-banner";
@@ -1650,8 +1462,11 @@
     renderScriptUI();
     var playerSec = document.getElementById("playerSection");
     playerSec.classList.add("active");
+    notifyCourseraHeight();
     playerSec.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
+
+  window.addEventListener("load", notifyCourseraHeight);
 </script>
 </body>
 </html>
