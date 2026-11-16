@@ -1,0 +1,1766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Executive Briefing Podcast Studio</title>
+<style>
+  :root {
+    --bg-app: #f8fafc;
+    --bg-surface: #ffffff;
+    --bg-subtle: #f1f5f9;
+    --text-primary: #0f172a;
+    --text-secondary: #334155;
+    --text-muted: #64748b;
+    --border-light: #e2e8f0;
+    --border-strong: #cbd5e1;
+
+    --brand-navy: #0f172a;
+    --brand-blue: #0284c7;
+    --brand-blue-hover: #0369a1;
+    --brand-blue-soft: #e0f2fe;
+    --brand-teal: #0d9488;
+    --brand-teal-soft: #f0fdfa;
+    --brand-teal-border: #99f6e4;
+
+    --host-accent: #1d4ed8;
+    --host-bg: #eff6ff;
+    --host-border: #bfdbfe;
+
+    --expert-accent: #0f766e;
+    --expert-bg: #f0fdfa;
+    --expert-border: #99f6e4;
+
+    --warn-bg: #fffbeb;
+    --warn-border: #fde68a;
+    --warn-text: #92400e;
+
+    --radius-lg: 14px;
+    --radius-md: 10px;
+    --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08);
+    --shadow-md: 0 4px 14px -2px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-app);
+    color: var(--text-primary);
+    line-height: 1.5;
+    padding: 16px;
+  }
+
+  .studio-container {
+    max-width: 980px;
+    margin: 0 auto;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: 26px;
+  }
+
+  .studio-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 14px;
+    padding-bottom: 18px;
+    margin-bottom: 22px;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .header-title h1 {
+    font-size: 1.32rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .header-title p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+
+  .badge-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--brand-teal-soft);
+    color: #115e59;
+    border: 1px solid var(--brand-teal-border);
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+
+  .input-mode-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .tab-btn {
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-strong);
+    color: var(--text-secondary);
+    padding: 9px 15px;
+    border-radius: 8px;
+    font-size: 0.86rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .tab-btn:hover {
+    border-color: var(--brand-blue);
+    color: var(--brand-blue);
+  }
+
+  .tab-btn.active {
+    background: var(--brand-navy);
+    color: #ffffff;
+    border-color: var(--brand-navy);
+  }
+
+  .input-panel {
+    display: none;
+    background: #f8fafc;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    padding: 18px;
+    margin-bottom: 18px;
+  }
+
+  .input-panel.active {
+    display: block;
+  }
+
+  .panel-label {
+    display: block;
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+  }
+
+  .panel-hint {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+
+  textarea.source-textarea {
+    width: 100%;
+    min-height: 155px;
+    padding: 12px 14px;
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: var(--text-primary);
+    background: #ffffff;
+    resize: vertical;
+  }
+
+  .file-dropzone {
+    border: 2px dashed var(--border-strong);
+    border-radius: 10px;
+    background: #ffffff;
+    padding: 26px 18px;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .file-dropzone:hover,
+  .file-dropzone.dragover {
+    border-color: var(--brand-blue);
+    background: #f0f9ff;
+  }
+
+  .dropzone-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .dropzone-sub {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+  }
+
+  .file-status {
+    margin-top: 10px;
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: var(--brand-teal);
+  }
+
+  .url-input-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .url-input-row input[type="url"] {
+    flex: 1;
+    min-width: 240px;
+    padding: 10px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    background: #ffffff;
+  }
+
+  .status-banner {
+    display: none;
+    margin-top: 12px;
+    padding: 11px 14px;
+    border-radius: 8px;
+    font-size: 0.84rem;
+    line-height: 1.45;
+  }
+
+  .status-banner.show {
+    display: block;
+  }
+
+  .status-banner.warn {
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-border);
+    color: var(--warn-text);
+  }
+
+  .status-banner.info {
+    background: var(--brand-blue-soft);
+    border: 1px solid #bae6fd;
+    color: #0c4a6e;
+  }
+
+  .config-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 16px 18px;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    margin-bottom: 14px;
+  }
+
+  .voice-selectors {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  .control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 230px;
+    flex: 1;
+  }
+
+  .control-group label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+  }
+
+  .select-with-preview {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .control-group select,
+  .api-row input {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 10px;
+    border: 1px solid var(--border-strong);
+    border-radius: 7px;
+    font-size: 0.84rem;
+    background: #ffffff;
+    color: var(--text-primary);
+    font-family: inherit;
+  }
+
+  .btn-preview {
+    padding: 8px 10px;
+    border-radius: 7px;
+    border: 1px solid var(--border-strong);
+    background: #ffffff;
+    color: var(--text-primary);
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: inherit;
+  }
+
+  .btn-preview:hover {
+    background: var(--brand-blue-soft);
+    border-color: var(--brand-blue);
+    color: var(--brand-blue);
+  }
+
+  .studio-upgrade-details {
+    background: #ffffff;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.82rem;
+  }
+
+  .studio-upgrade-details summary {
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--text-secondary);
+    user-select: none;
+  }
+
+  .api-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+    align-items: center;
+  }
+
+  .config-footer-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border-light);
+  }
+
+  .action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-left: auto;
+  }
+
+  .btn {
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid transparent;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .btn-primary {
+    background: var(--brand-blue);
+    color: #ffffff;
+  }
+
+  .btn-primary:hover {
+    background: var(--brand-blue-hover);
+  }
+
+  .btn-secondary {
+    background: #ffffff;
+    color: var(--text-primary);
+    border-color: var(--border-strong);
+  }
+
+  .btn-secondary:hover {
+    background: #f1f5f9;
+  }
+
+  .btn-dark {
+    background: var(--brand-navy);
+    color: #ffffff;
+  }
+
+  .persona-note {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    background: #ffffff;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 18px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .player-section {
+    display: none;
+  }
+
+  .player-section.active {
+    display: block;
+  }
+
+  .player-deck {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: #ffffff;
+    border-radius: var(--radius-lg);
+    padding: 20px 22px;
+    margin-bottom: 20px;
+  }
+
+  .deck-top {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .now-speaking {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .speaker-indicator {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: #334155;
+    color: #e2e8f0;
+  }
+
+  .speaker-indicator.host-live {
+    background: #2563eb;
+    color: #ffffff;
+  }
+
+  .speaker-indicator.expert-live {
+    background: #0d9488;
+    color: #ffffff;
+  }
+
+  .speaker-indicator.pause-live {
+    background: #d97706;
+    color: #ffffff;
+  }
+
+  .briefing-stats {
+    font-size: 0.82rem;
+    color: #cbd5e1;
+  }
+
+  .transport-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .transport-btn {
+    background: #ffffff;
+    color: #0f172a;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 0.84rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .transport-btn.primary-play {
+    background: #38bdf8;
+    color: #0f172a;
+  }
+
+  .speed-control {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    color: #cbd5e1;
+  }
+
+  .speed-control select {
+    background: #1e293b;
+    color: #ffffff;
+    border: 1px solid #475569;
+    border-radius: 6px;
+    padding: 5px 8px;
+    font-size: 0.82rem;
+  }
+
+  .progress-track {
+    width: 100%;
+    height: 8px;
+    background: #334155;
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: #38bdf8;
+    border-radius: 999px;
+    transition: width 0.25s ease;
+  }
+
+  .progress-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.76rem;
+    color: #94a3b8;
+  }
+
+  .script-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .script-header h2 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .script-hint {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+  }
+
+  .dialogue-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 430px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+
+  .turn-card {
+    border-radius: 10px;
+    padding: 14px 16px;
+    border: 1px solid var(--border-light);
+    background: #ffffff;
+    cursor: pointer;
+  }
+
+  .turn-card.host-turn {
+    border-left: 4px solid var(--host-accent);
+  }
+
+  .turn-card.expert-turn {
+    border-left: 4px solid var(--expert-accent);
+  }
+
+  .turn-card.active-turn {
+    box-shadow: 0 0 0 2px var(--brand-blue), var(--shadow-sm);
+    background: #f0f9ff;
+  }
+
+  .turn-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .speaker-tag {
+    font-size: 0.76rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 2px 8px;
+    border-radius: 5px;
+  }
+
+  .host-turn .speaker-tag {
+    background: var(--host-bg);
+    color: var(--host-accent);
+    border: 1px solid var(--host-border);
+  }
+
+  .expert-turn .speaker-tag {
+    background: var(--expert-bg);
+    color: var(--expert-accent);
+    border: 1px solid var(--expert-border);
+  }
+
+  .pause-tag {
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: var(--bg-subtle);
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--border-light);
+  }
+
+  .turn-text {
+    font-size: 0.92rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+  }
+</style>
+</head>
+<body>
+
+<div class="studio-container">
+  <header class="studio-header">
+    <div class="header-title">
+      <h1>Executive Briefing Podcast Generator</h1>
+      <p>Convert course readings, copied web articles, or uploaded notes into a natural 2–3 minute two-person audio briefing.</p>
+    </div>
+    <span class="badge-pill">&#127911; Natural Prosody &amp; Neural Voices</span>
+  </header>
+
+  <div class="input-mode-tabs" role="tablist" aria-label="Content Source Type">
+    <button type="button" class="tab-btn active" id="tabBtn-text" onclick="switchTab('text')">&#128221; Paste Reading / Web Text</button>
+    <button type="button" class="tab-btn" id="tabBtn-file" onclick="switchTab('file')">&#128193; Upload File (.txt, .md, .html, .csv)</button>
+    <button type="button" class="tab-btn" id="tabBtn-url" onclick="switchTab('url')">&#127760; Fetch Article URL</button>
+  </div>
+
+  <div class="input-panel active" id="panel-text">
+    <label class="panel-label" for="sourceTextInput">Paste Course Reading or Copied Web Text</label>
+    <p class="panel-hint">Paste any article, lecture notes, or copied web page content. Navigation menus and boilerplate clutter are automatically cleaned.</p>
+    <textarea id="sourceTextInput" class="source-textarea" placeholder="Paste your course reading or web article text here, or click 'Load Sample Reading' below to test immediately..."></textarea>
+  </div>
+
+  <div class="input-panel" id="panel-file">
+    <label class="panel-label">Upload Local Reading File</label>
+    <p class="panel-hint">Supports plain text (.txt), Markdown (.md), HTML (.html/.htm), and CSV (.csv) files processed 100% locally in your browser.</p>
+    <div class="file-dropzone" id="fileDropzone" onclick="document.getElementById('fileInput').click()">
+      <div class="dropzone-title">Click to choose a file or drag &amp; drop it here</div>
+      <div class="dropzone-sub">No data leaves your browser</div>
+      <input type="file" id="fileInput" accept=".txt,.md,.markdown,.html,.htm,.csv,.json" hidden onchange="onFileSelected(event)" />
+      <div class="file-status" id="fileStatus"></div>
+    </div>
+  </div>
+
+  <div class="input-panel" id="panel-url">
+    <label class="panel-label" for="urlInput">Import Public Web Page URL</label>
+    <p class="panel-hint">Attempts a direct client-side fetch of the page text. If a site blocks browser cross-origin (CORS) requests, simply copy the text from the page and paste it in the first tab.</p>
+    <div class="url-input-row">
+      <input type="url" id="urlInput" placeholder="https://example.org/healthcare-ai-ethics-article" />
+      <button type="button" class="btn btn-dark" id="fetchUrlBtn" onclick="fetchArticleUrl()">Extract Web Text</button>
+    </div>
+    <div class="status-banner" id="urlStatusBanner"></div>
+  </div>
+
+  <div class="config-bar">
+    <div class="voice-selectors">
+      <div class="control-group">
+        <label for="hostVoiceSelect">Host (Female &bull; Asian &bull; Age ~35)</label>
+        <div class="select-with-preview">
+          <select id="hostVoiceSelect">
+            <option value="persona_host_maya">Maya Lin — Female, Asian, ~35</option>
+          </select>
+          <button type="button" class="btn-preview" onclick="previewSpeakerVoice(true)" title="Audition Host Voice">&#9654; Test</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label for="expertVoiceSelect">Subject Expert (White &bull; Age ~30)</label>
+        <div class="select-with-preview">
+          <select id="expertVoiceSelect">
+            <option value="persona_expert_liam">Dr. Liam Carter — White, ~30</option>
+          </select>
+          <button type="button" class="btn-preview" onclick="previewSpeakerVoice(false)" title="Audition Subject Expert Voice">&#9654; Test</button>
+        </div>
+      </div>
+
+      <div class="control-group" style="max-width: 240px;">
+        <label for="pauseStyleSelect">Conversational Rhythm</label>
+        <select id="pauseStyleSelect">
+          <option value="conversational" selected>Natural Dialogue Rhythm</option>
+          <option value="deliberate">Executive Deliberate</option>
+          <option value="brisk">Tight &amp; Brisk</option>
+        </select>
+      </div>
+    </div>
+
+    <details class="studio-upgrade-details">
+      <summary>&#10024; Optional: Connect OpenAI Studio Neural Voices (Guaranteed Human-Like Audio Across All Browsers)</summary>
+      <p style="color: var(--text-muted); margin-top: 6px; font-size: 0.78rem;">
+        Leave blank to use your browser's built-in Neural voices for free. Or paste an OpenAI API key to render studio-grade neural voices (<strong>Nova</strong> for Maya Lin &amp; <strong>Onyx</strong> for Dr. Liam Carter) directly in memory—never stored or sent anywhere else.
+      </p>
+      <div class="api-row">
+        <input type="password" id="openaiApiKeyInput" placeholder="sk-... (Optional OpenAI API Key for Studio TTS)" autocomplete="off" />
+      </div>
+    </details>
+
+    <div class="config-footer-row">
+      <span style="font-size: 0.78rem; color: var(--text-muted);">
+        Prosody Engine: Spoken contractions &bull; Punctuation-aware breaths &bull; Question pitch lift
+      </span>
+      <div class="action-buttons">
+        <button type="button" class="btn btn-secondary" id="loadSampleBtn" onclick="loadSampleReading()">Load Sample Reading</button>
+        <button type="button" class="btn btn-primary" id="generatePodcastBtn" onclick="generatePodcast()">&#127897; Generate Podcast Briefing</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="persona-note" id="voiceDiagnostics">
+    <span><strong>Active Cast:</strong> <strong>Host:</strong> Maya Lin (Female, Asian, ~35) &nbsp;|&nbsp; <strong>Subject Expert:</strong> Dr. Liam Carter (White, ~30)</span>
+    <span id="neuralEngineBadge" style="color: #0f766e; font-weight: 600;">Detecting natural neural voices...</span>
+  </div>
+
+  <div class="status-banner" id="mainStatusBanner" style="margin-bottom: 18px;"></div>
+
+  <section class="player-section" id="playerSection" aria-label="Podcast Player and Transcript">
+    <div class="player-deck">
+      <div class="deck-top">
+        <div class="now-speaking">
+          <span class="speaker-indicator" id="liveSpeakerBadge">Ready</span>
+          <span id="liveStatusText" style="font-size: 0.92rem; font-weight: 600;">Press Play to start the 2–3 minute executive briefing</span>
+        </div>
+        <div class="briefing-stats" id="briefingStats">0 turns &bull; ~2.5 min</div>
+      </div>
+
+      <div class="transport-bar">
+        <button type="button" class="transport-btn primary-play" id="playPauseBtn" onclick="togglePlayPause()">&#9654; Play Briefing</button>
+        <button type="button" class="transport-btn" id="prevTurnBtn" onclick="playPrevTurn()">&#9198; Prev</button>
+        <button type="button" class="transport-btn" id="nextTurnBtn" onclick="playNextTurn()">&#9197; Next</button>
+        <button type="button" class="transport-btn" id="stopBtn" onclick="stopPlayback(true)">&#9632; Stop</button>
+
+        <div class="speed-control">
+          <label for="rateSelect">Speed:</label>
+          <select id="rateSelect" onchange="updateRuntimeDisplay()">
+            <option value="0.9">0.9x</option>
+            <option value="0.98" selected>1.0x (Natural)</option>
+            <option value="1.06">1.08x</option>
+            <option value="1.15">1.15x</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-labels">
+        <span id="turnCounterLabel">Turn 0 of 0</span>
+        <span id="estDurationLabel">Est. Runtime: 2m 30s</span>
+      </div>
+    </div>
+
+    <div class="script-header">
+      <h2>Generated Two-Person Briefing Script</h2>
+      <span class="script-hint">Click any dialogue card below to jump directly to that segment</span>
+    </div>
+
+    <div class="dialogue-list" id="dialogueList"></div>
+  </section>
+</div>
+
+<script>
+  var NL = String.fromCharCode(10);
+  var CR = String.fromCharCode(13);
+
+  var sampleReadingText = [
+    "Why Ethics Fluency at the Entry Level Is What Distinguishes Trusted Coordinators",
+    "One Question That Stopped the Room",
+    "A newly hired healthcare AI coordinator sat in her first ethics review meeting and watched a senior program manager ask a single question that stopped the room: 'Where in this workflow does the patient still get a real choice?' The proposed change would let an AI tool flag high-risk patients for follow-up calls without telling the patients that an algorithm had made the referral. No one else in the room had named the concern out loud. The coordinator recognized it immediately, because she had learned to name it: a consent-boundary concern, tied to whether patients understood the AI's role in their own care. She flagged it, the ethics committee reviewed it before rollout, and the workflow was revised to disclose the AI's involvement.",
+    "",
+    "What Senior Leaders Notice",
+    "That moment separates coordinators who earn trust for oversight work from coordinators who are handed a checklist and told to follow it. Senior program managers, clinical leads, and ethics committees notice which entry-level hires can look at a routine healthcare AI scenario and name the ethics concept at stake—patient autonomy, beneficence, nonmaleficence, justice, or consent boundaries—instead of needing someone else to translate what the scenario shows into what to do about it. That recognition is a form of literacy, and it is learnable at the entry level without a background in bioethics or philosophy.",
+    "",
+    "When the Fluency Is Missing",
+    "The cost of missing this fluency shows up later, and it shows up in patients. Another new hire on the same team reviewed a similar workflow change a few months earlier and missed the same kind of concern. It surfaced only after clinicians raised it independently, well into the rollout, after patients had already been affected. The difference between the two coordinators was not intelligence or effort. It was whether they had a working vocabulary for the ethics concepts at stake and a habit of checking routine scenarios against it.",
+    "",
+    "What This Skill Actually Requires",
+    "Building that vocabulary and habit is essential for effective healthcare AI coordination. Ethics fluency at the entry level does not mean making final ethics judgments—those decisions stay with senior leadership, clinical leaders, and ethics committees. It means recognizing when a scenario touches one of the five ethics concepts, naming it precisely, and routing it to the people who can act on it. That skill turns a new hire into someone a team can rely on."
+  ].join(NL);
+
+  var dialogueTurns = [];
+  var currentTurnIndex = 0;
+  var isPlaying = false;
+  var isPaused = false;
+  var pauseTimer = null;
+  var currentAudioEl = null;
+  var availableVoices = [];
+  var bestHostVoiceIndex = -1;
+  var bestExpertVoiceIndex = -1;
+
+  function switchTab(tabName) {
+    var tabs = ["text", "file", "url"];
+    for (var i = 0; i < tabs.length; i++) {
+      var name = tabs[i];
+      var btn = document.getElementById("tabBtn-" + name);
+      var panel = document.getElementById("panel-" + name);
+      if (btn) btn.classList.toggle("active", name === tabName);
+      if (panel) panel.classList.toggle("active", name === tabName);
+    }
+  }
+
+  function switchToTextTabWithContent(cleanedText) {
+    document.getElementById("sourceTextInput").value = cleanedText;
+    var banner = document.getElementById("mainStatusBanner");
+    banner.className = "status-banner";
+    switchTab("text");
+  }
+
+  function cleanWebOrRawText(raw) {
+    if (!raw) return "";
+    var text = String(raw);
+
+    if (text.indexOf("<") !== -1 && text.indexOf(">") !== -1) {
+      var parser = new DOMParser();
+      var doc = parser.parseFromString(text, "text/html");
+      var unwanted = doc.querySelectorAll("script, style, nav, header, footer, aside, noscript, iframe");
+      for (var i = 0; i < unwanted.length; i++) {
+        unwanted[i].remove();
+      }
+      text = doc.body ? (doc.body.innerText || doc.body.textContent || "") : text;
+    }
+
+    var boilerplatePatterns = [
+      /^skip to (main )?content$/i,
+      /^cookie (policy|settings|preferences)/i,
+      /^accept all cookies/i,
+      /^subscribe to our newsletter/i,
+      /^share this article/i,
+      /^related articles$/i,
+      /^advertisement$/i,
+      /^sign in|log in|register$/i,
+      /^copyright/i
+    ];
+
+    var normalized = text.split(CR).join("");
+    var rawLines = normalized.split(NL);
+    var cleanedLines = [];
+    for (var j = 0; j < rawLines.length; j++) {
+      var line = rawLines[j].replace(/\s+/g, " ").trim();
+      if (!line) continue;
+      if (line.length < 3 && !/[a-zA-Z0-9]/.test(line)) continue;
+      var isBoilerplate = false;
+      for (var k = 0; k < boilerplatePatterns.length; k++) {
+        if (boilerplatePatterns[k].test(line)) {
+          isBoilerplate = true;
+          break;
+        }
+      }
+      if (!isBoilerplate) {
+        cleanedLines.push(line);
+      }
+    }
+
+    return cleanedLines.join(NL + NL);
+  }
+
+  function handleUploadedFile(file) {
+    var fileStatus = document.getElementById("fileStatus");
+    var reader = new FileReader();
+    reader.onload = function(event) {
+      var cleaned = cleanWebOrRawText(event.target.result);
+      var wordCount = cleaned ? cleaned.split(/\s+/).length : 0;
+      fileStatus.textContent = "Loaded '" + file.name + "' (" + wordCount + " words). Switched to editor.";
+      switchToTextTabWithContent(cleaned);
+    };
+    reader.onerror = function() {
+      fileStatus.textContent = "Could not read file. Please try a plain text (.txt or .md) file.";
+    };
+    reader.readAsText(file);
+  }
+
+  function onFileSelected(event) {
+    if (event.target.files && event.target.files[0]) {
+      handleUploadedFile(event.target.files[0]);
+    }
+  }
+
+  (function setupDragAndDrop() {
+    var dropzone = document.getElementById("fileDropzone");
+    if (!dropzone) return;
+    dropzone.addEventListener("dragover", function(e) {
+      e.preventDefault();
+      dropzone.classList.add("dragover");
+    });
+    dropzone.addEventListener("dragleave", function() {
+      dropzone.classList.remove("dragover");
+    });
+    dropzone.addEventListener("drop", function(e) {
+      e.preventDefault();
+      dropzone.classList.remove("dragover");
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+        handleUploadedFile(e.dataTransfer.files[0]);
+      }
+    });
+  })();
+
+  function fetchArticleUrl() {
+    var urlInput = document.getElementById("urlInput");
+    var urlStatusBanner = document.getElementById("urlStatusBanner");
+    var url = urlInput.value.trim();
+
+    if (!url) {
+      urlStatusBanner.className = "status-banner show warn";
+      urlStatusBanner.textContent = "Please enter a valid http:// or https:// URL first.";
+      return;
+    }
+
+    urlStatusBanner.className = "status-banner show info";
+    urlStatusBanner.textContent = "Fetching web page content directly from browser...";
+
+    fetch(url)
+      .then(function(response) {
+        if (!response.ok) {
+          throw new Error("HTTP status " + response.status);
+        }
+        return response.text();
+      })
+      .then(function(htmlText) {
+        var cleaned = cleanWebOrRawText(htmlText);
+        if (cleaned.length < 80) {
+          throw new Error("Insufficient readable article text extracted.");
+        }
+        urlStatusBanner.className = "status-banner show info";
+        urlStatusBanner.textContent = "Article text extracted successfully! Review in the text editor and generate your briefing.";
+        switchToTextTabWithContent(cleaned);
+      })
+      .catch(function() {
+        urlStatusBanner.className = "status-banner show warn";
+        urlStatusBanner.innerHTML =
+          "<strong>Direct fetch blocked by website security (CORS):</strong> Most news sites and LMS portals block external browser scripts from reading URLs directly. Simply open the page, select and copy the article text (Ctrl+A / Ctrl+C), and paste it into the <strong>Paste Reading / Web Text</strong> tab—our parser will automatically strip web clutter.";
+      });
+  }
+
+  function loadSampleReading() {
+    switchToTextTabWithContent(sampleReadingText);
+  }
+
+  /* ==========================================================================
+     STRICT NEURAL VOICE FILTERING & PERSONA SCORING
+     Blocks legacy robotic voices (David/Zira/Mark/eSpeak) when neural voices exist
+     ========================================================================== */
+  function scoreNeuralQuality(voice) {
+    var name = (voice.name || "").toLowerCase();
+    var score = 0;
+
+    if (name.indexOf("natural") !== -1) score += 150;
+    if (name.indexOf("neural") !== -1) score += 150;
+    if (name.indexOf("online") !== -1) score += 110;
+    if (name.indexOf("google") !== -1) score += 105;
+    if (name.indexOf("premium") !== -1 || name.indexOf("enhanced") !== -1) score += 130;
+
+    if (name.indexOf("microsoft") !== -1 && (
+      name.indexOf("aria") !== -1 || name.indexOf("jenny") !== -1 || name.indexOf("guy") !== -1 ||
+      name.indexOf("andrew") !== -1 || name.indexOf("ava") !== -1 || name.indexOf("emma") !== -1 ||
+      name.indexOf("michelle") !== -1 || name.indexOf("steffan") !== -1 || name.indexOf("christopher") !== -1 ||
+      name.indexOf("luna") !== -1 || name.indexOf("yan") !== -1 || name.indexOf("sam") !== -1
+    )) {
+      score += 125;
+    }
+
+    if (name.indexOf("samantha") !== -1 || name.indexOf("allison") !== -1 || name.indexOf("daniel") !== -1 || name.indexOf("alex") !== -1 || name.indexOf("tom") !== -1 || name.indexOf("evan") !== -1 || name.indexOf("nathan") !== -1) {
+      score += 75;
+    }
+
+    // Strongly penalize legacy robotic voices
+    if (name.indexOf("espeak") !== -1 || name.indexOf("desktop") !== -1 || name.indexOf("david") !== -1 || name.indexOf("zira") !== -1 || name.indexOf("mark") !== -1 || name.indexOf("george") !== -1 || name.indexOf("hazel") !== -1) {
+      score -= 120;
+    }
+
+    return score;
+  }
+
+  function scoreHostFemaleAsian35(voice) {
+    var name = (voice.name || "").toLowerCase();
+    var lang = (voice.lang || "").toLowerCase();
+    var score = scoreNeuralQuality(voice);
+
+    if (lang === "en-sg" || lang === "en-hk" || lang === "en-ph" || lang === "en-in") score += 75;
+    if (name.indexOf("luna") !== -1 || name.indexOf("yan") !== -1 || name.indexOf("sam") !== -1 || name.indexOf("rosa") !== -1 || name.indexOf("neerja") !== -1 || name.indexOf("kavya") !== -1 || name.indexOf("mei") !== -1 || name.indexOf("ting") !== -1 || name.indexOf("xiaoxiao") !== -1) {
+      score += 95;
+    }
+
+    var femaleSignals = ["aria", "jenny", "ava", "emma", "michelle", "samantha", "allison", "joanna", "salli", "kimberly", "kendra", "ivy", "google us english", "google uk english female", "libby", "sonia", "natasha", "clara"];
+    for (var i = 0; i < femaleSignals.length; i++) {
+      if (name.indexOf(femaleSignals[i]) !== -1) {
+        score += 65;
+        break;
+      }
+    }
+
+    var maleSignals = ["guy", "andrew", "christopher", "steffan", "eric", "roger", "brian", "daniel", "alex", "tom", "evan", "nathan", "rishi", "liam", "male"];
+    for (var j = 0; j < maleSignals.length; j++) {
+      if (name.indexOf(maleSignals[j]) !== -1) {
+        score -= 180;
+        break;
+      }
+    }
+
+    return score;
+  }
+
+  function scoreExpertWhite30(voice, hostIdx) {
+    var name = (voice.name || "").toLowerCase();
+    var lang = (voice.lang || "").toLowerCase();
+    var score = scoreNeuralQuality(voice);
+
+    if (lang === "en-us" || lang === "en-gb" || lang === "en-ca" || lang === "en-au") score += 40;
+
+    var expertSignals = ["andrew", "guy", "brian", "christopher", "steffan", "liam", "ryan", "william", "evan", "nathan", "alex", "daniel", "google uk english male", "eric", "matthew", "joey"];
+    for (var i = 0; i < expertSignals.length; i++) {
+      if (name.indexOf(expertSignals[i]) !== -1) {
+        score += 85;
+        break;
+      }
+    }
+
+    if (hostIdx >= 0 && availableVoices[hostIdx] && availableVoices[hostIdx].name === voice.name) {
+      score -= 250;
+    }
+
+    return score;
+  }
+
+  function populateVoices() {
+    if (!("speechSynthesis" in window)) return;
+    var rawVoices = window.speechSynthesis.getVoices();
+    if (!rawVoices || !rawVoices.length) return;
+
+    var englishVoices = [];
+    for (var i = 0; i < rawVoices.length; i++) {
+      if (rawVoices[i].lang && rawVoices[i].lang.toLowerCase().indexOf("en") === 0) {
+        englishVoices.push(rawVoices[i]);
+      }
+    }
+    var pool = englishVoices.length ? englishVoices : rawVoices;
+
+    // Filter out robotic legacy voices if high-quality neural voices are present
+    var neuralOnly = pool.filter(function(v) { return scoreNeuralQuality(v) >= 60; });
+    availableVoices = neuralOnly.length >= 2 ? neuralOnly : pool;
+
+    var topHostScore = -9999;
+    bestHostVoiceIndex = 0;
+    for (var h = 0; h < availableVoices.length; h++) {
+      var hs = scoreHostFemaleAsian35(availableVoices[h]);
+      if (hs > topHostScore) {
+        topHostScore = hs;
+        bestHostVoiceIndex = h;
+      }
+    }
+
+    var topExpertScore = -9999;
+    bestExpertVoiceIndex = availableVoices.length > 1 ? 1 : 0;
+    for (var e = 0; e < availableVoices.length; e++) {
+      var es = scoreExpertWhite30(availableVoices[e], bestHostVoiceIndex);
+      if (es > topExpertScore) {
+        topExpertScore = es;
+        bestExpertVoiceIndex = e;
+      }
+    }
+
+    var hostSelect = document.getElementById("hostVoiceSelect");
+    var expertSelect = document.getElementById("expertVoiceSelect");
+    var prevHost = hostSelect.value;
+    var prevExpert = expertSelect.value;
+
+    hostSelect.innerHTML = "";
+    expertSelect.innerHTML = "";
+
+    var hostVoiceObj = availableVoices[bestHostVoiceIndex];
+    var expertVoiceObj = availableVoices[bestExpertVoiceIndex];
+
+    hostSelect.add(new Option(
+      "Auto Best: Maya Lin (Female, Asian, ~35) [" + (hostVoiceObj ? hostVoiceObj.name : "Natural") + "]",
+      "persona_host_maya"
+    ));
+
+    expertSelect.add(new Option(
+      "Auto Best: Dr. Liam Carter (White, ~30) [" + (expertVoiceObj ? expertVoiceObj.name : "Natural") + "]",
+      "persona_expert_liam"
+    ));
+
+    var indexed = availableVoices.map(function(v, idx) {
+      return { voice: v, idx: idx, quality: scoreNeuralQuality(v) };
+    });
+    indexed.sort(function(a, b) { return b.quality - a.quality; });
+
+    for (var j = 0; j < indexed.length; j++) {
+      var item = indexed[j];
+      var tag = item.quality >= 70 ? " ★ Neural" : "";
+      var label = item.voice.name + " (" + item.voice.lang + ")" + tag;
+      hostSelect.add(new Option(label, String(item.idx)));
+      expertSelect.add(new Option(label, String(item.idx)));
+    }
+
+    var hostExists = false;
+    for (var o1 = 0; o1 < hostSelect.options.length; o1++) {
+      if (hostSelect.options[o1].value === prevHost) hostExists = true;
+    }
+    hostSelect.value = hostExists ? prevHost : "persona_host_maya";
+
+    var expertExists = false;
+    for (var o2 = 0; o2 < expertSelect.options.length; o2++) {
+      if (expertSelect.options[o2].value === prevExpert) expertExists = true;
+    }
+    expertSelect.value = expertExists ? prevExpert : "persona_expert_liam";
+
+    var diagBadge = document.getElementById("neuralEngineBadge");
+    var hasNeural = indexed.length > 0 && indexed[0].quality >= 70;
+    if (hasNeural) {
+      diagBadge.textContent = "✓ Neural Human Voices (" + hostVoiceObj.name + " & " + expertVoiceObj.name + ")";
+      diagBadge.style.color = "#0f766e";
+    } else {
+      diagBadge.textContent = "Local OS voices detected — open in Edge/Chrome or add optional OpenAI key above for studio audio";
+      diagBadge.style.color = "#b45309";
+    }
+  }
+
+  populateVoices();
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.onvoiceschanged = populateVoices;
+    setTimeout(populateVoices, 400);
+    setTimeout(populateVoices, 1200);
+  }
+
+  /* ==========================================================================
+     NATURAL SPOKEN CONVERSATIONAL POLISH
+     Converts stiff written prose into natural spoken English with contractions
+     ========================================================================== */
+  function makeSpokenNatural(text) {
+    return text
+      .replace(/Let us/g, "Let's")
+      .replace(/let us/g, "let's")
+      .replace(/do not/g, "don't")
+      .replace(/does not/g, "doesn't")
+      .replace(/did not/g, "didn't")
+      .replace(/is not/g, "isn't")
+      .replace(/are not/g, "aren't")
+      .replace(/cannot/g, "can't")
+      .replace(/will not/g, "won't")
+      .replace(/would not/g, "wouldn't")
+      .replace(/should not/g, "shouldn't")
+      .replace(/it is/g, "it's")
+      .replace(/It is/g, "It's")
+      .replace(/that is/g, "that's")
+      .replace(/That is/g, "That's")
+      .replace(/we are/g, "we're")
+      .replace(/We are/g, "We're");
+  }
+
+  /* ==========================================================================
+     CONTEXT-AWARE PROSODY & PUNCTUATION PAUSE CHUNKER
+     Splits dialogue into natural breath segments and calculates realistic
+     human pause durations based on punctuation, questions, and emphasis.
+     ========================================================================== */
+  function splitIntoProsodySegments(text, isHost) {
+    var mode = document.getElementById("pauseStyleSelect").value;
+    var mult = mode === "brisk" ? 0.72 : (mode === "deliberate" ? 1.32 : 1.0);
+
+    // Split on sentence-ending punctuation, em-dashes, semicolons, and colons
+    var rawParts = text.match(/[^.!?;:—]+[.!?;:—]+(?:\s|$)|[^.!?;:—]+$/g) || [text];
+    var segments = [];
+
+    for (var i = 0; i < rawParts.length; i++) {
+      var part = rawParts[i].trim();
+      if (!part) continue;
+
+      var lastChar = part.charAt(part.length - 1);
+      var isQuestion = lastChar === "?";
+      var isEmDash = lastChar === "—" || lastChar === ":";
+      var isSemicolon = lastChar === ";";
+      var wordCount = part.split(/\s+/).length;
+
+      // Determine natural pause after this phrase (ms)
+      var pauseMs = 340;
+      if (isQuestion) {
+        pauseMs = 520; // Thoughtful beat after asking a question
+      } else if (isEmDash) {
+        pauseMs = 260; // Dramatic/explanatory beat on em-dash or colon
+      } else if (isSemicolon) {
+        pauseMs = 230;
+      } else if (wordCount >= 16) {
+        pauseMs = 460; // Longer breath after a dense sentence
+      } else {
+        pauseMs = 310; // Standard natural sentence breath
+      }
+
+      // If this is the final segment of the turn, the turn's handoff pause handles the gap
+      if (i === rawParts.length - 1) {
+        pauseMs = 0;
+      } else {
+        pauseMs = Math.round(pauseMs * mult);
+      }
+
+      // Compute natural pitch & rate inflection per phrase
+      var pitchShift = 0;
+      var rateScale = 1.0;
+
+      if (isQuestion) {
+        pitchShift = 0.045; // Subtle upward inflection at end of questions
+        rateScale = 1.01;
+      } else if (i === rawParts.length - 1) {
+        pitchShift = -0.025; // Grounded downward cadence at the end of a thought
+        rateScale = 0.97;
+      } else if (wordCount >= 18) {
+        rateScale = 0.95; // Slightly slower, clearer articulation on dense ideas
+      } else if (wordCount <= 5) {
+        rateScale = 1.04; // Snappier conversational interjection ("Thanks, Maya.", "Precisely, Maya.")
+      }
+
+      segments.push({
+        text: part,
+        pauseAfterMs: pauseMs,
+        pitchShift: pitchShift,
+        rateScale: rateScale
+      });
+    }
+
+    return segments;
+  }
+
+  function previewSpeakerVoice(isHost) {
+    stopPlayback(false);
+    var sampleLine = isHost
+      ? "Hi, I'm Maya Lin. Today we're breaking down the core operational takeaways—so where does this show up first in practice?"
+      : "Thanks, Maya. When you look closely at the workflow, the biggest risk isn't technical accuracy—it's whether people understand how decisions are made.";
+
+    var apiKey = (document.getElementById("openaiApiKeyInput").value || "").trim();
+    if (apiKey) {
+      playOpenAISegment(sampleLine, isHost, apiKey, function() {});
+      return;
+    }
+
+    if (!("speechSynthesis" in window)) return;
+    window.speechSynthesis.cancel();
+    var segs = splitIntoProsodySegments(sampleLine, isHost);
+    var idx = 0;
+    function nextPrev() {
+      if (idx >= segs.length) return;
+      var u = new SpeechSynthesisUtterance(segs[idx].text);
+      applyNaturalPersonaVoice(u, isHost, segs[idx]);
+      u.onend = function() {
+        var wait = segs[idx].pauseAfterMs;
+        idx++;
+        setTimeout(nextPrev, wait);
+      };
+      window.speechSynthesis.speak(u);
+    }
+    nextPrev();
+  }
+
+  function splitIntoSentences(block) {
+    var matches = block.match(/[^.!?]+[.!?]+(?:\s|$)/g);
+    if (!matches) return [block];
+    return matches;
+  }
+
+  function extractKeySections(cleanedText) {
+    var rawParagraphs = cleanedText.split(NL + NL);
+    var paragraphs = [];
+    for (var i = 0; i < rawParagraphs.length; i++) {
+      var trimmed = rawParagraphs[i].trim();
+      if (trimmed.length > 0) paragraphs.push(trimmed);
+    }
+
+    var title = "Today's Core Topic";
+    var bodyBlocks = paragraphs;
+
+    if (paragraphs.length > 1 && paragraphs[0].length < 110 && !/[.!?]$/.test(paragraphs[0])) {
+      title = paragraphs[0].replace(/^#+\s*/, "");
+      bodyBlocks = paragraphs.slice(1);
+    }
+
+    var sections = [];
+    var currentSection = { heading: null, sentences: [] };
+
+    for (var b = 0; b < bodyBlocks.length; b++) {
+      var block = bodyBlocks[b];
+      var isHeading = block.length < 95 && !/[.!?]$/.test(block);
+      if (isHeading) {
+        if (currentSection.sentences.length > 0) {
+          sections.push(currentSection);
+        }
+        currentSection = { heading: block.replace(/^#+\s*/, ""), sentences: [] };
+      } else {
+        var sents = splitIntoSentences(block);
+        for (var s = 0; s < sents.length; s++) {
+          var st = sents[s].trim();
+          if (st.length > 12) {
+            currentSection.sentences.push(st);
+          }
+        }
+      }
+    }
+
+    if (currentSection.sentences.length > 0) {
+      sections.push(currentSection);
+    }
+
+    if (!sections.length && cleanedText.trim().length > 0) {
+      sections.push({ heading: null, sentences: [cleanedText.trim()] });
+    }
+
+    return { title: title, sections: sections };
+  }
+
+  function condenseForExecutiveBriefing(sections, maxTotalWords) {
+    var selectedSections = sections.slice(0, 4);
+    var perSectionWordBudget = Math.max(55, Math.floor((maxTotalWords - 90) / Math.max(1, selectedSections.length)));
+    var result = [];
+
+    for (var i = 0; i < selectedSections.length; i++) {
+      var sec = selectedSections[i];
+      var count = 0;
+      var picked = [];
+      for (var j = 0; j < sec.sentences.length; j++) {
+        var sent = sec.sentences[j];
+        var words = sent.split(/\s+/).length;
+        if (count + words <= perSectionWordBudget || picked.length === 0) {
+          picked.push(sent);
+          count += words;
+        } else {
+          break;
+        }
+      }
+      result.push({
+        heading: sec.heading,
+        summaryText: picked.join(" ")
+      });
+    }
+    return result;
+  }
+
+  function getTurnHandoffPauseMs(type) {
+    var mode = document.getElementById("pauseStyleSelect").value;
+    var multipliers = { brisk: 0.72, conversational: 1.0, deliberate: 1.38 };
+    var mult = multipliers[mode] || 1.0;
+    // Tighter, realistic conversational handoffs (650ms–880ms) instead of robotic 1.2s dead air
+    var base = { intro: 720, question: 620, insight: 820, outro: 500 };
+    return Math.round((base[type] || 700) * mult);
+  }
+
+  function buildTwoPersonDialogue(rawText) {
+    var cleaned = cleanWebOrRawText(rawText);
+    var parsed = extractKeySections(cleaned);
+    var condensed = condenseForExecutiveBriefing(parsed.sections, 385);
+    var script = [];
+
+    script.push({
+      speaker: "Host (Maya Lin)",
+      isHost: true,
+      roleClass: "host-turn",
+      text: makeSpokenNatural("Welcome to this Executive Briefing. I'm Maya Lin, and today we're examining " + parsed.title + "—focusing on the core operational takeaways and what they mean for your day-to-day work."),
+      pauseAfterMs: getTurnHandoffPauseMs("intro")
+    });
+
+    script.push({
+      speaker: "Subject Expert (Dr. Liam Carter)",
+      isHost: false,
+      roleClass: "expert-turn",
+      text: makeSpokenNatural("Thanks, Maya. When you look closely at this material, the key is looking past surface details and focusing on the underlying framework that guides sound decisions."),
+      pauseAfterMs: getTurnHandoffPauseMs("insight")
+    });
+
+    var prompts = [
+      function(h) { return h ? "Let's start with " + h + ". What's the central issue practitioners need to recognize here?" : "To start us off, what's the foundational point outlined in this reading?"; },
+      function(h) { return h ? "That brings us to " + h + ". How does that principle translate into day-to-day execution?" : "Building on that, what separates strong execution from common oversights?"; },
+      function(h) { return h ? "Now consider " + h + ". What happens when teams overlook this factor?" : "And what are the downstream consequences when this standard is missing?"; },
+      function(h) { return h ? "Finally, looking at " + h + ", what specific habits or capabilities are required?" : "To put this into practice, what specific discipline does this require from a coordinator?"; }
+    ];
+
+    for (var i = 0; i < condensed.length; i++) {
+      var item = condensed[i];
+      var promptFn = prompts[i % prompts.length];
+
+      script.push({
+        speaker: "Host (Maya Lin)",
+        isHost: true,
+        roleClass: "host-turn",
+        text: makeSpokenNatural(promptFn(item.heading)),
+        pauseAfterMs: getTurnHandoffPauseMs("question")
+      });
+
+      script.push({
+        speaker: "Subject Expert (Dr. Liam Carter)",
+        isHost: false,
+        roleClass: "expert-turn",
+        text: makeSpokenNatural(item.summaryText),
+        pauseAfterMs: getTurnHandoffPauseMs("insight")
+      });
+    }
+
+    script.push({
+      speaker: "Host (Maya Lin)",
+      isHost: true,
+      roleClass: "host-turn",
+      text: makeSpokenNatural("So to bring it all together: proactive recognition, clear professional vocabulary, and timely escalation prevent downstream risks before they affect outcomes."),
+      pauseAfterMs: getTurnHandoffPauseMs("question")
+    });
+
+    script.push({
+      speaker: "Subject Expert (Dr. Liam Carter)",
+      isHost: false,
+      roleClass: "expert-turn",
+      text: makeSpokenNatural("Precisely, Maya. Mastering these fundamentals turns routine monitoring into trusted, reliable oversight. Thanks for listening to this briefing."),
+      pauseAfterMs: getTurnHandoffPauseMs("outro")
+    });
+
+    return script;
+  }
+
+  function estimateRuntimeSeconds(script) {
+    var rate = parseFloat(document.getElementById("rateSelect").value) || 0.98;
+    var totalWords = 0;
+    var totalPauseSec = 0;
+    for (var i = 0; i < script.length; i++) {
+      totalWords += script[i].text.split(/\s+/).length;
+      totalPauseSec += script[i].pauseAfterMs / 1000;
+      var segs = splitIntoProsodySegments(script[i].text, script[i].isHost);
+      for (var s = 0; s < segs.length; s++) {
+        totalPauseSec += segs[s].pauseAfterMs / 1000;
+      }
+    }
+    var speechSec = (totalWords / (152 * rate)) * 60;
+    return Math.round(speechSec + totalPauseSec);
+  }
+
+  function formatSeconds(sec) {
+    var m = Math.floor(sec / 60);
+    var s = sec % 60;
+    return m + "m " + (s < 10 ? "0" : "") + s + "s";
+  }
+
+  function updateRuntimeDisplay() {
+    if (!dialogueTurns.length) return;
+    var estSec = estimateRuntimeSeconds(dialogueTurns);
+    document.getElementById("briefingStats").textContent = dialogueTurns.length + " turns • Est. " + formatSeconds(estSec);
+    document.getElementById("estDurationLabel").textContent = "Est. Runtime: " + formatSeconds(estSec);
+  }
+
+  function renderScriptUI() {
+    var dialogueList = document.getElementById("dialogueList");
+    dialogueList.innerHTML = "";
+
+    for (var i = 0; i < dialogueTurns.length; i++) {
+      (function(idx) {
+        var turn = dialogueTurns[idx];
+        var card = document.createElement("div");
+        card.className = "turn-card " + turn.roleClass;
+        card.id = "turnCard-" + idx;
+        card.innerHTML =
+          '<div class="turn-top">' +
+            '<span class="speaker-tag">' + turn.speaker + '</span>' +
+            '<span class="pause-tag">Handoff: ' + (turn.pauseAfterMs / 1000).toFixed(2) + 's</span>' +
+          '</div>' +
+          '<p class="turn-text">' + turn.text + '</p>';
+        card.onclick = function() {
+          stopPlayback(false);
+          currentTurnIndex = idx;
+          startPlaybackFrom(idx);
+        };
+        dialogueList.appendChild(card);
+      })(i);
+    }
+
+    updateRuntimeDisplay();
+    updateProgressUI(0, "Ready");
+  }
+
+  function updateProgressUI(index, stateLabel) {
+    var total = dialogueTurns.length;
+    var pct = total ? Math.round(((index + 1) / total) * 100) : 0;
+    document.getElementById("progressFill").style.width = (stateLabel === "Ready" ? 0 : pct) + "%";
+    document.getElementById("turnCounterLabel").textContent = "Turn " + (stateLabel === "Ready" ? 0 : index + 1) + " of " + total;
+
+    var cards = document.querySelectorAll(".turn-card");
+    for (var i = 0; i < cards.length; i++) {
+      cards[i].classList.toggle("active-turn", stateLabel !== "Ready" && i === index);
+    }
+
+    var activeCard = document.getElementById("turnCard-" + index);
+    if (activeCard && stateLabel !== "Ready") {
+      activeCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }
+
+  function stopPlayback(resetIndex) {
+    isPlaying = false;
+    isPaused = false;
+    if (pauseTimer) {
+      clearTimeout(pauseTimer);
+      pauseTimer = null;
+    }
+    if (currentAudioEl) {
+      currentAudioEl.pause();
+      currentAudioEl = null;
+    }
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
+    document.getElementById("playPauseBtn").innerHTML = "&#9654; Play Briefing";
+    var badge = document.getElementById("liveSpeakerBadge");
+    badge.className = "speaker-indicator";
+    badge.textContent = "Ready";
+    if (resetIndex) {
+      currentTurnIndex = 0;
+      document.getElementById("liveStatusText").textContent = "Briefing stopped. Press Play to begin.";
+      updateProgressUI(0, "Ready");
+    }
+  }
+
+  function applyNaturalPersonaVoice(utterance, isHost, segObj) {
+    var selectedVal = isHost ? document.getElementById("hostVoiceSelect").value : document.getElementById("expertVoiceSelect").value;
+    var baseRate = parseFloat(document.getElementById("rateSelect").value) || 0.98;
+    var pitchShift = segObj ? segObj.pitchShift : 0;
+    var rateScale = segObj ? segObj.rateScale : 1.0;
+
+    var numericIdx = Number(selectedVal);
+    if (!isNaN(numericIdx) && availableVoices[numericIdx]) {
+      utterance.voice = availableVoices[numericIdx];
+      utterance.pitch = (isHost ? 1.03 : 0.93) + pitchShift;
+      utterance.rate = baseRate * rateScale;
+      return;
+    }
+
+    if (isHost) {
+      // Maya Lin: Female, Asian, ~35 years — poised, warm mid-30s host register
+      if (bestHostVoiceIndex >= 0 && availableVoices[bestHostVoiceIndex]) {
+        utterance.voice = availableVoices[bestHostVoiceIndex];
+      }
+      utterance.pitch = 1.04 + pitchShift;
+      utterance.rate = baseRate * 1.01 * rateScale;
+    } else {
+      // Dr. Liam Carter: White, ~30 years — clear, grounded specialist cadence
+      if (bestExpertVoiceIndex >= 0 && availableVoices[bestExpertVoiceIndex]) {
+        utterance.voice = availableVoices[bestExpertVoiceIndex];
+      }
+      utterance.pitch = 0.92 + pitchShift;
+      utterance.rate = baseRate * 0.98 * rateScale;
+    }
+  }
+
+  function playOpenAISegment(text, isHost, apiKey, onComplete) {
+    var rate = parseFloat(document.getElementById("rateSelect").value) || 0.98;
+    // OpenAI Studio Neural Voices: "nova" (warm female ~35) & "onyx" (articulate male ~30)
+    var voiceId = isHost ? "nova" : "onyx";
+
+    fetch("https://api.openai.com/v1/audio/speech", {
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer " + apiKey,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "tts-1-hd",
+        input: text,
+        voice: voiceId,
+        speed: rate
+      })
+    })
+    .then(function(res) {
+      if (!res.ok) throw new Error("OpenAI TTS error " + res.status);
+      return res.blob();
+    })
+    .then(function(blob) {
+      var url = URL.createObjectURL(blob);
+      var audio = new Audio(url);
+      currentAudioEl = audio;
+      audio.onended = function() {
+        URL.revokeObjectURL(url);
+        currentAudioEl = null;
+        onComplete();
+      };
+      audio.onerror = function() {
+        URL.revokeObjectURL(url);
+        currentAudioEl = null;
+        onComplete();
+      };
+      audio.play();
+    })
+    .catch(function() {
+      document.getElementById("liveStatusText").textContent = "OpenAI key check failed—falling back to browser neural voice.";
+      document.getElementById("openaiApiKeyInput").value = "";
+      onComplete();
+    });
+  }
+
+  function speakTurn(index) {
+    if (!isPlaying || index >= dialogueTurns.length) {
+      stopPlayback(true);
+      document.getElementById("liveStatusText").textContent = "Executive briefing complete.";
+      return;
+    }
+
+    currentTurnIndex = index;
+    var turn = dialogueTurns[index];
+    updateProgressUI(index, "Speaking");
+
+    var badge = document.getElementById("liveSpeakerBadge");
+    badge.className = "speaker-indicator " + (turn.isHost ? "host-live" : "expert-live");
+    badge.textContent = turn.speaker;
+    document.getElementById("liveStatusText").textContent = "Speaking turn " + (index + 1) + " of " + dialogueTurns.length + "...";
+
+    var apiKey = (document.getElementById("openaiApiKeyInput").value || "").trim();
+    if (apiKey) {
+      playOpenAISegment(turn.text, turn.isHost, apiKey, function() {
+        if (!isPlaying) return;
+        badge.className = "speaker-indicator pause-live";
+        badge.textContent = "Handoff (" + (turn.pauseAfterMs / 1000).toFixed(2) + "s)";
+        pauseTimer = setTimeout(function() {
+          if (isPlaying && !isPaused) speakTurn(index + 1);
+        }, turn.pauseAfterMs);
+      });
+      return;
+    }
+
+    if (!("speechSynthesis" in window)) {
+      document.getElementById("liveStatusText").textContent = "Your browser does not support Web Speech synthesis. Read the generated script below.";
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    var segments = splitIntoProsodySegments(turn.text, turn.isHost);
+    var segPos = 0;
+
+    function speakNextSegment() {
+      if (!isPlaying) return;
+      if (segPos >= segments.length) {
+        badge.className = "speaker-indicator pause-live";
+        badge.textContent = "Handoff (" + (turn.pauseAfterMs / 1000).toFixed(2) + "s)";
+        document.getElementById("liveStatusText").textContent = "Speaker handoff...";
+
+        pauseTimer = setTimeout(function() {
+          if (isPlaying && !isPaused) {
+            speakTurn(index + 1);
+          }
+        }, turn.pauseAfterMs);
+        return;
+      }
+
+      var seg = segments[segPos];
+      var utterance = new SpeechSynthesisUtterance(seg.text);
+      applyNaturalPersonaVoice(utterance, turn.isHost, seg);
+
+      utterance.onend = function() {
+        if (!isPlaying) return;
+        var intraPause = seg.pauseAfterMs;
+        segPos++;
+        if (intraPause > 0) {
+          pauseTimer = setTimeout(function() {
+            if (isPlaying && !isPaused) {
+              speakNextSegment();
+            }
+          }, intraPause);
+        } else {
+          speakNextSegment();
+        }
+      };
+
+      utterance.onerror = function() {
+        if (isPlaying) {
+          stopPlayback(false);
+          document.getElementById("liveStatusText").textContent = "Audio playback interrupted. Click Play to resume.";
+        }
+      };
+
+      window.speechSynthesis.speak(utterance);
+    }
+
+    speakNextSegment();
+  }
+
+  function startPlaybackFrom(index) {
+    isPlaying = true;
+    isPaused = false;
+    document.getElementById("playPauseBtn").innerHTML = "&#10074;&#10074; Pause";
+    speakTurn(index);
+  }
+
+  function togglePlayPause() {
+    if (!dialogueTurns.length) return;
+    var playBtn = document.getElementById("playPauseBtn");
+    var badge = document.getElementById("liveSpeakerBadge");
+
+    if (!isPlaying) {
+      startPlaybackFrom(currentTurnIndex);
+    } else if (!isPaused) {
+      isPaused = true;
+      if (pauseTimer) clearTimeout(pauseTimer);
+      if (currentAudioEl) currentAudioEl.pause();
+      if ("speechSynthesis" in window) window.speechSynthesis.pause();
+      playBtn.innerHTML = "&#9654; Resume";
+      badge.className = "speaker-indicator pause-live";
+      badge.textContent = "Paused";
+      document.getElementById("liveStatusText").textContent = "Briefing paused.";
+    } else {
+      isPaused = false;
+      playBtn.innerHTML = "&#10074;&#10074; Pause";
+      if (currentAudioEl) {
+        currentAudioEl.play();
+      } else if ("speechSynthesis" in window && window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      } else {
+        speakTurn(currentTurnIndex);
+      }
+    }
+  }
+
+  function playPrevTurn() {
+    if (!dialogueTurns.length) return;
+    var prev = Math.max(0, currentTurnIndex - 1);
+    stopPlayback(false);
+    startPlaybackFrom(prev);
+  }
+
+  function playNextTurn() {
+    if (!dialogueTurns.length) return;
+    var next = Math.min(dialogueTurns.length - 1, currentTurnIndex + 1);
+    stopPlayback(false);
+    startPlaybackFrom(next);
+  }
+
+  function generatePodcast() {
+    var raw = document.getElementById("sourceTextInput").value.trim();
+    var banner = document.getElementById("mainStatusBanner");
+    if (!raw) {
+      banner.className = "status-banner show warn";
+      banner.textContent = "Please paste reading text, upload a file, or click 'Load Sample Reading' first.";
+      return;
+    }
+    banner.className = "status-banner";
+    stopPlayback(true);
+    dialogueTurns = buildTwoPersonDialogue(raw);
+    renderScriptUI();
+    var playerSec = document.getElementById("playerSection");
+    playerSec.classList.add("active");
+    playerSec.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+</script>
+</body>
+</html>
