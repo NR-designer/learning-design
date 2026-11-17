@@ -1,0 +1,2084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Straive Generator — Standalone Infographic Studio</title>
+  <!-- Google Fonts for Typography Presets -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&family=Merriweather:wght@400;700&family=Playfair+Display:wght@700;800&family=Poppins:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- html-to-image for high-res PNG and SVG client-side export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
+  <style>
+    :root {
+      /* Light Theme App UI Chrome Variables */
+      --ui-bg: #f1f5f9;
+      --ui-panel: #ffffff;
+      --ui-surface: #f8fafc;
+      --ui-border: #e2e8f0;
+      --ui-border-strong: #cbd5e1;
+      --ui-text: #0f172a;
+      --ui-muted: #64748b;
+      --ui-accent: #4f46e5;
+      --ui-accent-soft: #eef2ff;
+
+      /* Infographic Canvas Theme Defaults (Straive Clean) */
+      --canvas-bg: #ffffff;
+      --card-bg: #f8fafc;
+      --card-border: #cbd5e1;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --brand-primary: #4f46e5;
+      --brand-secondary: #06b6d4;
+      --brand-accent: #f97316;
+      --font-heading: 'Inter', sans-serif;
+      --font-body: 'Inter', sans-serif;
+      --font-scale: 1;
+      --card-radius: 14px;
+      --card-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+      --border-width: 1.5px;
+      --border-style: solid;
+      --venn-blend: multiply;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--ui-bg);
+      color: var(--ui-text);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ================= LEFT SIDEBAR (LIGHT THEME CONTROLS) ================= */
+    .sidebar {
+      width: 410px;
+      min-width: 410px;
+      background: var(--ui-panel);
+      border-right: 1px solid var(--ui-border);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      box-shadow: 2px 0 12px rgba(15, 23, 42, 0.03);
+      z-index: 10;
+    }
+
+    .brand-bar {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--ui-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--ui-panel);
+    }
+
+    .brand-bar h1 {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--ui-text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-badge {
+      background: var(--ui-accent-soft);
+      color: var(--ui-accent);
+      border: 1px solid #c7d2fe;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .sidebar-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .control-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--ui-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Layout & Theme Grid Buttons */
+    .pill-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+    }
+
+    .pill-btn {
+      background: var(--ui-surface);
+      border: 1px solid var(--ui-border);
+      color: var(--ui-text);
+      padding: 7px 9px;
+      border-radius: 8px;
+      font-size: 11.5px;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .pill-btn:hover {
+      border-color: var(--ui-border-strong);
+      background: #f1f5f9;
+    }
+
+    .pill-btn.active {
+      background: var(--ui-accent-soft);
+      border-color: var(--ui-accent);
+      color: var(--ui-accent);
+      font-weight: 600;
+    }
+
+    .preset-del {
+      font-size: 10px;
+      color: #94a3b8;
+      padding: 1px 4px;
+      border-radius: 4px;
+    }
+    .preset-del:hover {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    /* Inputs */
+    input[type="text"], textarea, select {
+      width: 100%;
+      background: var(--ui-surface);
+      border: 1px solid var(--ui-border-strong);
+      color: var(--ui-text);
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13px;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+
+    input[type="text"]:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--ui-accent);
+      background: #ffffff;
+    }
+
+    .two-col-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .field-caption {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--ui-muted);
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .color-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .color-chip {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--ui-surface);
+      border: 1px solid var(--ui-border-strong);
+      color: var(--ui-text);
+      padding: 5px 8px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    input[type="color"] {
+      border: none;
+      width: 22px;
+      height: 22px;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    /* Item Editor Cards */
+    .item-editor {
+      background: var(--ui-surface);
+      border: 1px solid var(--ui-border);
+      border-radius: 10px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .item-editor-header {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .icon-select {
+      width: 78px !important;
+      padding: 6px 4px !important;
+      text-align: center;
+      font-size: 12px !important;
+    }
+
+    .metric-input {
+      width: 85px !important;
+    }
+
+    .btn-sm {
+      background: #e2e8f0;
+      border: 1px solid #cbd5e1;
+      color: #1e293b;
+      padding: 5px 9px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-sm:hover { background: #cbd5e1; }
+    .btn-accent-sm {
+      background: var(--ui-accent-soft);
+      border: 1px solid #c7d2fe;
+      color: var(--ui-accent);
+    }
+    .btn-accent-sm:hover { background: #e0e7ff; }
+    .btn-danger { background: #fee2e2; border-color: #fecaca; color: #dc2626; }
+    .btn-danger:hover { background: #fecaca; }
+
+    /* ================= RIGHT WORKSPACE (LIGHT PREVIEW) ================= */
+    .workspace {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background: #e2e8f0;
+      background-image: radial-gradient(#cbd5e1 1.25px, transparent 1.25px);
+      background-size: 20px 20px;
+    }
+
+    .topbar {
+      height: 58px;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--ui-border);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .topbar-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-export {
+      background: var(--ui-accent);
+      color: #ffffff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25);
+    }
+
+    .btn-export:hover { filter: brightness(1.08); }
+    .btn-secondary {
+      background: #ffffff;
+      color: var(--ui-text);
+      border: 1px solid var(--ui-border-strong);
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-secondary:hover { background: #f8fafc; }
+
+    .canvas-viewport {
+      flex: 1;
+      overflow: auto;
+      padding: 36px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    /* ================= INFOGRAPHIC CANVAS ================= */
+    #infographic-canvas {
+      background: var(--canvas-bg);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      width: 840px;
+      min-height: 580px;
+      padding: 44px;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.14);
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 30px;
+      transition: background 0.25s ease, color 0.25s ease, width 0.25s ease;
+      position: relative;
+    }
+
+    #infographic-canvas.transparent-bg {
+      background: transparent !important;
+      box-shadow: none !important;
+      border-color: transparent !important;
+    }
+
+    /* Aspect Ratios */
+    #infographic-canvas.ratio-wide { width: 980px; min-height: 550px; }
+    #infographic-canvas.ratio-square { width: 800px; min-height: 800px; }
+    #infographic-canvas.ratio-tall { width: 700px; min-height: 980px; }
+
+    /* Structural Element 1: Header */
+    .ig-header {
+      border-bottom: 2px solid var(--card-border);
+      padding-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+    }
+
+    .ig-kicker {
+      display: inline-block;
+      font-size: calc(11px * var(--font-scale));
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--brand-primary);
+      margin-bottom: 6px;
+    }
+
+    .ig-title {
+      font-family: var(--font-heading);
+      font-size: calc(32px * var(--font-scale));
+      font-weight: 800;
+      line-height: 1.15;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .ig-subtitle {
+      font-size: calc(15px * var(--font-scale));
+      line-height: 1.5;
+      color: var(--text-secondary);
+      max-width: 600px;
+    }
+
+    .ig-logo-badge {
+      background: var(--brand-primary);
+      color: #fff;
+      font-weight: 800;
+      font-size: calc(12px * var(--font-scale));
+      padding: 8px 14px;
+      border-radius: 8px;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+
+    /* Editable highlight on canvas */
+    [contenteditable="true"]:hover {
+      outline: 1.5px dashed var(--brand-primary);
+      outline-offset: 3px;
+      border-radius: 4px;
+      cursor: text;
+    }
+    [contenteditable="true"]:focus {
+      outline: 2px solid var(--brand-primary);
+      outline-offset: 3px;
+      border-radius: 4px;
+    }
+
+    /* Structural Element 2: Dynamic Body Layouts */
+    .ig-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+    }
+
+    .node-card {
+      background: var(--card-bg);
+      border: var(--border-width) var(--border-style) var(--card-border);
+      border-radius: var(--card-radius);
+      box-shadow: var(--card-shadow);
+      padding: 16px 18px;
+      transition: all 0.2s ease;
+    }
+
+    .node-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: var(--brand-primary);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: calc(18px * var(--font-scale));
+      flex-shrink: 0;
+    }
+
+    .node-title {
+      font-family: var(--font-heading);
+      font-size: calc(16px * var(--font-scale));
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .node-desc {
+      font-size: calc(13px * var(--font-scale));
+      line-height: 1.45;
+      color: var(--text-secondary);
+    }
+
+    .node-metric {
+      font-size: calc(20px * var(--font-scale));
+      font-weight: 800;
+      color: var(--brand-primary);
+    }
+
+    /* LAYOUT 1: LIST / ALTERNATING */
+    .layout-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .layout-list .node-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .layout-list .step-num {
+      font-weight: 800;
+      font-size: calc(12px * var(--font-scale));
+      color: var(--brand-primary);
+      background: rgba(79, 70, 229, 0.1);
+      padding: 4px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    /* LAYOUT 2: UNIFIED COMPARISON COLUMNS */
+    .layout-comparison {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 16px;
+      align-items: stretch;
+    }
+    .comp-group {
+      background: var(--card-bg);
+      border: 2px solid var(--card-border);
+      border-radius: calc(var(--card-radius) + 4px);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: var(--card-shadow);
+    }
+    .comp-group.left-group {
+      border-top: 5px solid var(--brand-primary);
+    }
+    .comp-group.right-group {
+      border-top: 5px solid var(--brand-secondary);
+    }
+    .comp-header {
+      text-align: center;
+      padding: 10px 12px;
+      border-radius: 9px;
+      font-weight: 800;
+      font-size: calc(13.5px * var(--font-scale));
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #fff;
+    }
+    .comp-item {
+      background: var(--canvas-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+    .comp-vs-divider {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .comp-vs-divider::before {
+      content: '';
+      position: absolute;
+      top: 12px;
+      bottom: 12px;
+      width: 2px;
+      background: var(--card-border);
+      z-index: 1;
+    }
+    .comp-vs-badge {
+      position: relative;
+      z-index: 2;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--canvas-bg);
+      border: 2px solid var(--brand-accent);
+      color: var(--brand-accent);
+      font-weight: 800;
+      font-size: calc(12px * var(--font-scale));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
+    }
+
+    /* LAYOUT 3A: HORIZONTAL TIMELINE */
+    .layout-htimeline {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+      gap: 16px;
+      padding-top: 34px;
+    }
+    .htimeline-track {
+      position: absolute;
+      top: 12px;
+      left: 24px;
+      right: 24px;
+      height: 4px;
+      background: var(--brand-primary);
+      border-radius: 4px;
+    }
+    .htimeline-item {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .htimeline-dot {
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--canvas-bg);
+      border: 5px solid var(--brand-primary);
+      box-shadow: 0 0 0 3px var(--canvas-bg);
+      z-index: 2;
+    }
+
+    /* LAYOUT 3B: VERTICAL TIMELINE */
+    .layout-vtimeline {
+      position: relative;
+      padding-left: 34px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .layout-vtimeline::before {
+      content: '';
+      position: absolute;
+      left: 11px;
+      top: 8px;
+      bottom: 8px;
+      width: 3.5px;
+      background: var(--brand-primary);
+      border-radius: 4px;
+    }
+    .vtimeline-item {
+      position: relative;
+    }
+    .vtimeline-dot {
+      position: absolute;
+      left: -30px;
+      top: 18px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--canvas-bg);
+      border: 4.5px solid var(--brand-primary);
+    }
+
+    /* LAYOUT 4: PROCESS / FLOWCHART WITH DIRECTIONAL ARROWS */
+    .layout-process {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: stretch;
+      justify-content: center;
+      gap: 10px;
+    }
+    .process-step-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1 1 160px;
+      min-width: 155px;
+    }
+    .process-card {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      text-align: center;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    .process-step-pill {
+      font-size: calc(10.5px * var(--font-scale));
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--brand-secondary);
+      letter-spacing: 0.05em;
+    }
+    .process-arrow {
+      color: var(--brand-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* LAYOUT 5: RADIAL HUB WITH OUTWARD ARROWS */
+    .layout-radial-wrap {
+      position: relative;
+      width: 100%;
+    }
+    .radial-svg-overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .layout-radial {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: 1fr 220px 1fr;
+      gap: 24px;
+      align-items: center;
+    }
+    .radial-col {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .radial-hub {
+      width: 166px;
+      height: 166px;
+      border-radius: 50%;
+      background: var(--brand-primary);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 18px;
+      margin: 0 auto;
+      box-shadow: 0 12px 28px rgba(79, 70, 229, 0.25);
+      border: 5px solid var(--canvas-bg);
+      outline: 2px dashed var(--brand-primary);
+    }
+
+    /* LAYOUT 6: 2x2 MATRIX / QUADRANT */
+    .layout-matrix {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 16px;
+    }
+    .matrix-badge {
+      font-size: calc(10px * var(--font-scale));
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--brand-accent);
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    /* LAYOUT 7: DATA-HEAVY / STATISTICAL */
+    .layout-data {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .data-row {
+      display: grid;
+      grid-template-columns: 190px 1fr 80px;
+      align-items: center;
+      gap: 16px;
+    }
+    .bar-track {
+      height: 18px;
+      background: rgba(148, 163, 184, 0.2);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary));
+      border-radius: 99px;
+      transition: width 0.4s ease;
+    }
+
+    /* LAYOUT 8: PYRAMID / HIERARCHY */
+    .layout-pyramid {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .pyramid-tier {
+      text-align: center;
+      padding: 14px 20px;
+    }
+
+    /* LAYOUT 9: CONVERSION FUNNEL */
+    .layout-funnel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .funnel-stage {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 22px;
+      position: relative;
+      border-left: 5px solid var(--brand-primary);
+    }
+    .funnel-metric-pill {
+      background: var(--brand-primary);
+      color: #fff;
+      font-weight: 800;
+      font-size: calc(14px * var(--font-scale));
+      padding: 6px 12px;
+      border-radius: 99px;
+      white-space: nowrap;
+    }
+
+    /* LAYOUT 10: CYCLE / CONTINUOUS LOOP (SINGLE UNIFIED COLOR) */
+    .layout-cycle {
+      position: relative;
+      width: 100%;
+      height: 460px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .cycle-ring-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    .cycle-center-badge {
+      width: 134px;
+      height: 134px;
+      border-radius: 50%;
+      background: var(--card-bg);
+      border: 2px dashed var(--brand-primary);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 12px;
+      z-index: 2;
+    }
+    .cycle-node {
+      position: absolute;
+      width: 215px;
+      padding: 13px 15px;
+      z-index: 3;
+      transform: translate(-50%, -50%);
+    }
+
+    /* LAYOUT 11: VENN DIAGRAM (NON-OVERLAPPING TEXT REGIONS) */
+    .layout-venn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+    }
+    .venn-stage {
+      position: relative;
+      width: 100%;
+      max-width: 620px;
+      height: 410px;
+      margin: 0 auto;
+    }
+    .venn-circle {
+      position: absolute;
+      width: 270px;
+      height: 270px;
+      border-radius: 50%;
+      border: 2px solid var(--card-border);
+      mix-blend-mode: var(--venn-blend);
+      pointer-events: none;
+    }
+    .venn-label-box {
+      position: absolute;
+      width: 172px;
+      text-align: center;
+      z-index: 4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .venn-sweetspot {
+      position: absolute;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--canvas-bg);
+      border: 2px solid var(--brand-primary);
+      padding: 6px 13px;
+      border-radius: 99px;
+      font-size: calc(11px * var(--font-scale));
+      font-weight: 800;
+      color: var(--brand-primary);
+      z-index: 6;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+      white-space: nowrap;
+    }
+
+    /* LAYOUT 12: DECISION TREE */
+    .layout-tree {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+    .tree-root {
+      width: 68%;
+      text-align: center;
+      border-top: 4px solid var(--brand-primary);
+      position: relative;
+    }
+    .tree-connectors {
+      width: 60%;
+      height: 36px;
+      position: relative;
+    }
+    .tree-branches {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .tree-branch-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .tree-pill {
+      font-size: calc(11px * var(--font-scale));
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 4px 14px;
+      border-radius: 99px;
+      color: #fff;
+      letter-spacing: 0.05em;
+    }
+
+    /* LAYOUT 13: MIND MAP FRAMEWORK (BEZIER CURVED BRANCHES) */
+    .layout-mindmap-wrap {
+      position: relative;
+      width: 100%;
+    }
+    .mindmap-svg-overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .layout-mindmap {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: 210px 1fr;
+      gap: 54px;
+      align-items: center;
+    }
+    .mindmap-root {
+      background: var(--brand-primary);
+      color: #ffffff;
+      border-radius: calc(var(--card-radius) + 4px);
+      padding: 22px 18px;
+      text-align: center;
+      box-shadow: 0 12px 28px rgba(79, 70, 229, 0.24);
+      border: 3px solid var(--canvas-bg);
+      outline: 2px solid var(--brand-primary);
+    }
+    .mindmap-branches {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .mindmap-leaf {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      border-left: 4px solid var(--brand-secondary);
+    }
+
+    /* Structural Element 4: Footer */
+    .ig-footer {
+      border-top: 1.5px solid var(--card-border);
+      padding-top: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: calc(11.5px * var(--font-scale));
+      color: var(--text-secondary);
+    }
+
+    /* Light Theme Modals */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(2px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-box {
+      background: var(--ui-panel);
+      border: 1px solid var(--ui-border);
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.18);
+      border-radius: 12px;
+      width: 480px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      color: var(--ui-text);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================= LEFT SIDEBAR ================= -->
+  <aside class="sidebar">
+    <div class="brand-bar">
+      <h1>Straive Generator <span class="brand-badge">Studio</span></h1>
+      <button class="btn-sm btn-accent-sm" onclick="openMdModal()" title="Paste Markdown or Bullets">✨ Paste Text</button>
+    </div>
+
+    <div class="sidebar-scroll">
+      <!-- 1. LAYOUT PICKER (14 Hot-Swappable Templates) -->
+      <div class="control-group">
+        <div class="control-label">1. Layout Framework (14 Templates)</div>
+        <div class="pill-grid" id="layout-selector">
+          <button class="pill-btn active" data-layout="list">📋 List / Guide</button>
+          <button class="pill-btn" data-layout="comparison">⚖️ Comparison</button>
+          <button class="pill-btn" data-layout="htimeline">↔️ Horizontal Timeline</button>
+          <button class="pill-btn" data-layout="vtimeline">↕️ Vertical Timeline</button>
+          <button class="pill-btn" data-layout="process">➡️ Process Flow</button>
+          <button class="pill-btn" data-layout="radial">🎯 Radial Hub</button>
+          <button class="pill-btn" data-layout="mindmap">🧠 Mind Map</button>
+          <button class="pill-btn" data-layout="matrix">⊞ 2×2 Matrix</button>
+          <button class="pill-btn" data-layout="data">📊 Data & Stats</button>
+          <button class="pill-btn" data-layout="pyramid">🔺 Hierarchy</button>
+          <button class="pill-btn" data-layout="funnel">🔻 Conversion Funnel</button>
+          <button class="pill-btn" data-layout="cycle">🔄 Cycle Loop</button>
+          <button class="pill-btn" data-layout="venn">⭕ Venn Overlap</button>
+          <button class="pill-btn" data-layout="tree">🌿 Decision Tree</button>
+        </div>
+      </div>
+
+      <!-- 2. STYLE PRESETS (Built-in + Custom Saved Presets) -->
+      <div class="control-group">
+        <div class="control-label">
+          <span>2. Style Presets</span>
+          <button class="btn-sm btn-accent-sm" onclick="openPresetModal()">+ Save Preset</button>
+        </div>
+        <div class="pill-grid" id="preset-selector"></div>
+      </div>
+
+      <!-- 3. BRAND COLORS & TYPOGRAPHY -->
+      <div class="control-group">
+        <div class="control-label">3. Palette & Typography</div>
+        <div class="color-row">
+          <label class="color-chip">
+            <input type="color" id="color-primary" value="#4f46e5" oninput="updateCustomColor('primary', this.value)">
+            Primary
+          </label>
+          <label class="color-chip">
+            <input type="color" id="color-secondary" value="#06b6d4" oninput="updateCustomColor('secondary', this.value)">
+            Secondary
+          </label>
+          <label class="color-chip">
+            <input type="color" id="color-accent" value="#f97316" oninput="updateCustomColor('accent', this.value)">
+            Accent
+          </label>
+        </div>
+
+        <div class="two-col-row" style="margin-top:4px;">
+          <div>
+            <span class="field-caption">Font Family</span>
+            <select id="font-family-select" onchange="updateTypography()">
+              <option value="'Inter', sans-serif">Inter (Clean Sans)</option>
+              <option value="'Poppins', sans-serif">Poppins (Geometric)</option>
+              <option value="'Roboto', sans-serif">Roboto (Modern)</option>
+              <option value="'Playfair Display', serif">Playfair Display (Serif)</option>
+              <option value="'Merriweather', serif">Merriweather (Editorial)</option>
+              <option value="'JetBrains Mono', monospace">JetBrains Mono (Code)</option>
+            </select>
+          </div>
+          <div>
+            <span class="field-caption">Font Size Scale</span>
+            <select id="font-size-select" onchange="updateTypography()">
+              <option value="0.88">Compact (88%)</option>
+              <option value="1" selected>Default (100%)</option>
+              <option value="1.12">Large (112%)</option>
+              <option value="1.22">Extra Large (122%)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. HEADER & FOOTER METADATA -->
+      <div class="control-group">
+        <div class="control-label">4. Header & Footer</div>
+        <input type="text" id="inp-kicker" value="STRATEGIC OVERVIEW • 2026" oninput="syncFromSidebar()" placeholder="Kicker / Category">
+        <input type="text" id="inp-title" value="Modernizing Content & Data Workflows" oninput="syncFromSidebar()" placeholder="Main Headline">
+        <textarea id="inp-subtitle" rows="2" oninput="syncFromSidebar()" placeholder="Subtitle / Core Finding">Four foundational pillars driving automated intelligence, faster turnaround, and high-precision publishing.</textarea>
+        <div style="display:flex; gap:6px;">
+          <input type="text" id="inp-brand" value="STRAIVE" oninput="syncFromSidebar()" placeholder="Brand Tag">
+          <input type="text" id="inp-source" value="Source: Straive Intelligence Lab" oninput="syncFromSidebar()" placeholder="Footer Citation">
+        </div>
+      </div>
+
+      <!-- 5. CONTENT NODES EDITOR -->
+      <div class="control-group">
+        <div class="control-label">
+          <span>5. Content Blocks (<span id="node-count">4</span>)</span>
+          <button class="btn-sm" onclick="addNode()">+ Add Node</button>
+        </div>
+        <div id="nodes-editor-list" style="display:flex; flex-direction:column; gap:10px;"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ================= RIGHT WORKSPACE ================= -->
+  <main class="workspace">
+    <header class="topbar">
+      <div class="topbar-group">
+        <select id="ratio-select" onchange="changeRatio(this.value)" style="width:auto;">
+          <option value="default">Standard Poster (840px)</option>
+          <option value="ratio-wide">16:9 Presentation Slide</option>
+          <option value="ratio-square">1:1 Social Square</option>
+          <option value="ratio-tall">Long-Form Vertical</option>
+        </select>
+
+        <label style="font-size:12px; display:flex; align-items:center; gap:6px; cursor:pointer; color:var(--ui-muted); font-weight:500;">
+          <input type="checkbox" id="chk-transparent" onchange="toggleTransparent(this.checked)">
+          Transparent BG
+        </label>
+      </div>
+
+      <div class="topbar-group">
+        <button class="btn-secondary" onclick="exportJSON()" title="Save editable project file">💾 Save JSON</button>
+        <button class="btn-secondary" onclick="document.getElementById('json-loader').click()">📂 Load</button>
+        <input type="file" id="json-loader" accept=".json" style="display:none" onchange="importJSON(event)">
+        <button class="btn-secondary" onclick="exportSVG()">⬇️ SVG</button>
+        <button class="btn-export" onclick="exportPNG()">📸 Export PNG (2x)</button>
+      </div>
+    </header>
+
+    <div class="canvas-viewport">
+      <!-- THE INFOGRAPHIC CANVAS -->
+      <div id="infographic-canvas">
+        <!-- Header -->
+        <div class="ig-header">
+          <div>
+            <span class="ig-kicker" id="out-kicker" contenteditable="true">STRATEGIC OVERVIEW • 2026</span>
+            <h2 class="ig-title" id="out-title" contenteditable="true">Modernizing Content & Data Workflows</h2>
+            <p class="ig-subtitle" id="out-subtitle" contenteditable="true">Four foundational pillars driving automated intelligence, faster turnaround, and high-precision publishing.</p>
+          </div>
+          <div class="ig-logo-badge" id="out-brand" contenteditable="true">STRAIVE</div>
+        </div>
+
+        <!-- Dynamic Layout Body -->
+        <div class="ig-body" id="ig-body"></div>
+
+        <!-- Footer -->
+        <div class="ig-footer">
+          <span id="out-source" contenteditable="true">Source: Straive Intelligence Lab</span>
+          <span id="out-url" contenteditable="true">www.straive.com</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- MARKDOWN / TEXT PARSER MODAL -->
+  <div class="modal-backdrop" id="md-modal">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="font-size:15px;">✨ Auto-Generate from Text / Markdown</h3>
+        <button class="btn-sm" onclick="closeMdModal()">✕</button>
+      </div>
+      <p style="font-size:12px; color:var(--ui-muted);">Paste bullet points or numbered lines formatted as <code>Title: Description</code>. Straive Generator will structure them automatically.</p>
+      <textarea id="md-input" rows="7" placeholder="1. Data Ingestion: Unify structured and unstructured feeds into one pipeline.&#10;2. AI Enrichment: Apply domain-trained models for entity tagging.&#10;3. Human-in-the-Loop: Validate edge cases with subject-matter experts.&#10;4. Omnichannel Delivery: Publish simultaneously to web, XML, and mobile."></textarea>
+      <div style="display:flex; justify-content:flex-end; gap:8px;">
+        <button class="btn-secondary" onclick="closeMdModal()">Cancel</button>
+        <button class="btn-export" onclick="parseMarkdownToNodes()">Generate Infographic</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SAVE CUSTOM PRESET MODAL -->
+  <div class="modal-backdrop" id="preset-modal">
+    <div class="modal-box" style="width:380px;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="font-size:15px;">🎨 Save Custom Style Preset</h3>
+        <button class="btn-sm" onclick="closePresetModal()">✕</button>
+      </div>
+      <p style="font-size:12px; color:var(--ui-muted);">Saves your current Primary, Secondary, and Accent colors along with Font Family and Font Size Scale.</p>
+      <input type="text" id="preset-name-input" placeholder="e.g., Straive Executive Blue" maxlength="26">
+      <div style="display:flex; justify-content:flex-end; gap:8px;">
+        <button class="btn-secondary" onclick="closePresetModal()">Cancel</button>
+        <button class="btn-export" onclick="saveNewPreset()">Save Preset</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ================= APPLICATION STATE & PRESETS ================= */
+    const ICONS = ['🚀', '📊', '⚡', '🧠', '🔍', '🛡️', '🎯', '💡', '🔗', '📈', '✅', '🌐', '⚙️', '📌'];
+    const STORAGE_KEY_PRESETS = 'straive_custom_presets_v1';
+
+    const BUILTIN_PRESETS = [
+      {
+        id: 'straive-clean',
+        name: '🏢 Straive Clean',
+        builtin: true,
+        primary: '#4f46e5',
+        secondary: '#06b6d4',
+        accent: '#f97316',
+        fontFamily: "'Inter', sans-serif",
+        fontScale: '1'
+      }
+    ];
+
+    let customPresets = [];
+
+    let state = {
+      layout: 'list',
+      activePresetId: 'straive-clean',
+      style: {
+        primary: '#4f46e5',
+        secondary: '#06b6d4',
+        accent: '#f97316',
+        fontFamily: "'Inter', sans-serif",
+        fontScale: '1'
+      },
+      kicker: 'STRATEGIC OVERVIEW • 2026',
+      title: 'Modernizing Content & Data Workflows',
+      subtitle: 'Four foundational pillars driving automated intelligence, faster turnaround, and high-precision publishing.',
+      brand: 'STRAIVE',
+      source: 'Source: Straive Intelligence Lab',
+      url: 'www.straive.com',
+      nodes: [
+        { icon: '🔍', tag: 'Stage 01', metric: '10,000', title: 'Automated Data Ingestion', desc: 'Extract and normalize unstructured PDFs, tables, and feeds into clean schemas.' },
+        { icon: '🧠', tag: 'Stage 02', metric: '6,400', title: 'Domain AI Enrichment', desc: 'Apply specialized taxonomies and semantic tagging tailored to industry rules.' },
+        { icon: '🛡️', tag: 'Stage 03', metric: '2,850', title: 'Expert Quality Validation', desc: 'Human-in-the-loop review ensures compliance, accuracy, and zero hallucinations.' },
+        { icon: '🚀', tag: 'Stage 04', metric: '1,200', title: 'Omnichannel Publishing', desc: 'Deliver ready-to-consume intelligence across APIs, portals, and print formats.' }
+      ]
+    };
+
+    /* ================= INITIALIZATION ================= */
+    function init() {
+      loadCustomPresetsFromStorage();
+      renderPresetButtons();
+      applyStyleToCanvas();
+
+      document.querySelectorAll('#layout-selector .pill-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('#layout-selector .pill-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          state.layout = btn.dataset.layout;
+          renderCanvas();
+        });
+      });
+
+      ['kicker', 'title', 'subtitle', 'brand', 'source', 'url'].forEach(field => {
+        const el = document.getElementById(`out-${field}`);
+        el.addEventListener('input', () => {
+          state[field] = el.innerText;
+          const inp = document.getElementById(`inp-${field}`);
+          if (inp) inp.value = el.innerText;
+        });
+      });
+
+      window.addEventListener('resize', () => {
+        if (state.layout === 'radial') drawRadialConnectors();
+        if (state.layout === 'mindmap') drawMindMapConnectors();
+      });
+
+      renderSidebarEditors();
+      renderCanvas();
+    }
+
+    /* ================= STYLE PRESETS MANAGEMENT ================= */
+    function loadCustomPresetsFromStorage() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY_PRESETS);
+        customPresets = saved ? JSON.parse(saved) : [];
+      } catch (e) {
+        customPresets = [];
+      }
+    }
+
+    function persistCustomPresets() {
+      try {
+        localStorage.setItem(STORAGE_KEY_PRESETS, JSON.stringify(customPresets));
+      } catch (e) {
+        console.warn('Could not save presets to localStorage:', e);
+      }
+    }
+
+    function renderPresetButtons() {
+      const container = document.getElementById('preset-selector');
+      const allPresets = [...BUILTIN_PRESETS, ...customPresets];
+      container.innerHTML = '';
+
+      allPresets.forEach(preset => {
+        const btn = document.createElement('button');
+        btn.className = `pill-btn ${state.activePresetId === preset.id ? 'active' : ''}`;
+        btn.innerHTML = `
+          <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(preset.name)}</span>
+          ${!preset.builtin ? `<span class="preset-del" title="Delete preset" onclick="deletePreset(event, '${preset.id}')">✕</span>` : ''}
+        `;
+        btn.onclick = () => selectPreset(preset);
+        container.appendChild(btn);
+      });
+    }
+
+    function selectPreset(preset) {
+      state.activePresetId = preset.id;
+      state.style = {
+        primary: preset.primary,
+        secondary: preset.secondary,
+        accent: preset.accent,
+        fontFamily: preset.fontFamily,
+        fontScale: preset.fontScale
+      };
+      applyStyleToCanvas();
+      renderPresetButtons();
+      renderCanvas();
+    }
+
+    function openPresetModal() {
+      document.getElementById('preset-name-input').value = '';
+      document.getElementById('preset-modal').classList.add('open');
+      setTimeout(() => document.getElementById('preset-name-input').focus(), 50);
+    }
+
+    function closePresetModal() {
+      document.getElementById('preset-modal').classList.remove('open');
+    }
+
+    function saveNewPreset() {
+      const rawName = document.getElementById('preset-name-input').value.trim();
+      if (!rawName) return;
+
+      const newPreset = {
+        id: 'custom-' + Date.now(),
+        name: '🎨 ' + rawName,
+        builtin: false,
+        primary: state.style.primary,
+        secondary: state.style.secondary,
+        accent: state.style.accent,
+        fontFamily: state.style.fontFamily,
+        fontScale: state.style.fontScale
+      };
+
+      customPresets.push(newPreset);
+      persistCustomPresets();
+      state.activePresetId = newPreset.id;
+      renderPresetButtons();
+      closePresetModal();
+    }
+
+    function deletePreset(event, presetId) {
+      event.stopPropagation();
+      customPresets = customPresets.filter(p => p.id !== presetId);
+      persistCustomPresets();
+      if (state.activePresetId === presetId) {
+        selectPreset(BUILTIN_PRESETS[0]);
+      } else {
+        renderPresetButtons();
+      }
+    }
+
+    function applyStyleToCanvas() {
+      const canvas = document.getElementById('infographic-canvas');
+      canvas.style.setProperty('--brand-primary', state.style.primary);
+      canvas.style.setProperty('--brand-secondary', state.style.secondary);
+      canvas.style.setProperty('--brand-accent', state.style.accent);
+      canvas.style.setProperty('--font-heading', state.style.fontFamily);
+      canvas.style.setProperty('--font-body', state.style.fontFamily);
+      canvas.style.setProperty('--font-scale', state.style.fontScale);
+
+      document.getElementById('color-primary').value = state.style.primary;
+      document.getElementById('color-secondary').value = state.style.secondary;
+      document.getElementById('color-accent').value = state.style.accent;
+      document.getElementById('font-family-select').value = state.style.fontFamily;
+      document.getElementById('font-size-select').value = state.style.fontScale;
+    }
+
+    function updateCustomColor(key, hex) {
+      state.style[key] = hex;
+      state.activePresetId = null;
+      applyStyleToCanvas();
+      renderPresetButtons();
+    }
+
+    function updateTypography() {
+      state.style.fontFamily = document.getElementById('font-family-select').value;
+      state.style.fontScale = document.getElementById('font-size-select').value;
+      state.activePresetId = null;
+      applyStyleToCanvas();
+      renderPresetButtons();
+      if (state.layout === 'radial') requestAnimationFrame(drawRadialConnectors);
+      if (state.layout === 'mindmap') requestAnimationFrame(drawMindMapConnectors);
+    }
+
+    /* ================= SIDEBAR EDITOR RENDERING ================= */
+    function renderSidebarEditors() {
+      const container = document.getElementById('nodes-editor-list');
+      document.getElementById('node-count').innerText = state.nodes.length;
+      container.innerHTML = '';
+
+      state.nodes.forEach((node, idx) => {
+        const div = document.createElement('div');
+        div.className = 'item-editor';
+
+        const iconOptions = [
+          `<option value="" ${!node.icon ? 'selected' : ''}>None</option>`,
+          ...ICONS.map(ic => `<option value="${ic}" ${node.icon === ic ? 'selected' : ''}>${ic}</option>`)
+        ].join('');
+
+        div.innerHTML = `
+          <div class="item-editor-header">
+            <select class="icon-select" onchange="updateNode(${idx}, 'icon', this.value)" title="Select icon or None">${iconOptions}</select>
+            <input type="text" value="${escapeHtml(node.tag)}" placeholder="Tag/Step" style="width:90px" oninput="updateNode(${idx}, 'tag', this.value)">
+            <input type="text" class="metric-input" value="${escapeHtml(node.metric)}" placeholder="Stat (e.g. 85%)" oninput="updateNode(${idx}, 'metric', this.value)">
+            <button class="btn-sm btn-danger" onclick="removeNode(${idx})" title="Delete block">✕</button>
+          </div>
+          <input type="text" value="${escapeHtml(node.title)}" placeholder="Block Heading" oninput="updateNode(${idx}, 'title', this.value)">
+          <textarea rows="2" placeholder="Concise description..." oninput="updateNode(${idx}, 'desc', this.value)">${escapeHtml(node.desc)}</textarea>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function updateNode(index, key, value) {
+      state.nodes[index][key] = value;
+      renderCanvas();
+    }
+
+    function addNode() {
+      const num = state.nodes.length + 1;
+      state.nodes.push({
+        icon: ICONS[num % ICONS.length],
+        tag: `Stage 0${num}`,
+        metric: `${Math.max(10, 90 - num * 15)}%`,
+        title: `Key Pillar #${num}`,
+        desc: 'Click directly on the canvas or edit in the sidebar to customize this point.'
+      });
+      renderSidebarEditors();
+      renderCanvas();
+    }
+
+    function removeNode(index) {
+      if (state.nodes.length <= 1) return;
+      state.nodes.splice(index, 1);
+      renderSidebarEditors();
+      renderCanvas();
+    }
+
+    function syncFromSidebar() {
+      ['kicker', 'title', 'subtitle', 'brand', 'source'].forEach(field => {
+        const val = document.getElementById(`inp-${field}`).value;
+        state[field] = val;
+        document.getElementById(`out-${field}`).innerText = val;
+      });
+      if (state.layout === 'radial') requestAnimationFrame(drawRadialConnectors);
+      if (state.layout === 'mindmap') requestAnimationFrame(drawMindMapConnectors);
+    }
+
+    /* ================= HELPER FOR OPTIONAL ICONS ================= */
+    function renderBadgeIcon(icon) {
+      return icon ? `<div class="node-icon">${icon}</div>` : '';
+    }
+
+    function renderInlineIcon(icon, size = '18px') {
+      return icon ? `<span style="font-size:calc(${size} * var(--font-scale)); line-height:1;">${icon}</span>` : '';
+    }
+
+    /* ================= DYNAMIC SVG CONNECTOR ENGINES ================= */
+    function drawRadialConnectors() {
+      const wrap = document.getElementById('radial-wrap');
+      const svg = document.getElementById('radial-svg');
+      const hub = document.getElementById('radial-hub');
+      if (!wrap || !svg || !hub) return;
+
+      const wrapRect = wrap.getBoundingClientRect();
+      const hubRect = hub.getBoundingClientRect();
+      const hubCx = hubRect.left - wrapRect.left + hubRect.width / 2;
+      const hubCy = hubRect.top - wrapRect.top + hubRect.height / 2;
+      const hubRadius = hubRect.width / 2;
+
+      svg.setAttribute('viewBox', `0 0 ${wrapRect.width} ${wrapRect.height}`);
+
+      let paths = `
+        <defs>
+          <marker id="radial-arrowhead" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto">
+            <path d="M0,0 L0,7 L8,3.5 z" fill="var(--brand-primary)" />
+          </marker>
+        </defs>
+      `;
+
+      wrap.querySelectorAll('.radial-spoke-card').forEach(card => {
+        const cRect = card.getBoundingClientRect();
+        const isLeft = card.dataset.side === 'left';
+        const targetX = isLeft ? (cRect.right - wrapRect.left + 4) : (cRect.left - wrapRect.left - 4);
+        const targetY = cRect.top - wrapRect.top + cRect.height / 2;
+
+        const angle = Math.atan2(targetY - hubCy, targetX - hubCx);
+        const startX = hubCx + (hubRadius + 4) * Math.cos(angle);
+        const startY = hubCy + (hubRadius + 4) * Math.sin(angle);
+        const midX = (startX + targetX) / 2;
+
+        paths += `<path d="M ${startX.toFixed(1)} ${startY.toFixed(1)} C ${midX.toFixed(1)} ${startY.toFixed(1)}, ${midX.toFixed(1)} ${targetY.toFixed(1)}, ${targetX.toFixed(1)} ${targetY.toFixed(1)}" fill="none" stroke="var(--brand-primary)" stroke-width="2" marker-end="url(#radial-arrowhead)" />`;
+      });
+
+      svg.innerHTML = paths;
+    }
+
+    function drawMindMapConnectors() {
+      const wrap = document.getElementById('mindmap-wrap');
+      const svg = document.getElementById('mindmap-svg');
+      const root = document.getElementById('mindmap-root');
+      if (!wrap || !svg || !root) return;
+
+      const wrapRect = wrap.getBoundingClientRect();
+      const rootRect = root.getBoundingClientRect();
+      const startX = rootRect.right - wrapRect.left;
+      const startY = rootRect.top - wrapRect.top + rootRect.height / 2;
+
+      svg.setAttribute('viewBox', `0 0 ${wrapRect.width} ${wrapRect.height}`);
+
+      let paths = `
+        <defs>
+          <marker id="mm-dot" markerWidth="6" markerHeight="6" refX="3" refY="3">
+            <circle cx="3" cy="3" r="2.5" fill="var(--brand-primary)" />
+          </marker>
+        </defs>
+      `;
+
+      wrap.querySelectorAll('.mindmap-leaf').forEach((leaf, idx) => {
+        const lRect = leaf.getBoundingClientRect();
+        const endX = lRect.left - wrapRect.left;
+        const endY = lRect.top - wrapRect.top + lRect.height / 2;
+        const cp1X = startX + (endX - startX) * 0.5;
+        const cp2X = startX + (endX - startX) * 0.5;
+        const strokeColor = idx % 2 === 0 ? 'var(--brand-primary)' : 'var(--brand-secondary)';
+
+        paths += `<path d="M ${startX.toFixed(1)} ${startY.toFixed(1)} C ${cp1X.toFixed(1)} ${startY.toFixed(1)}, ${cp2X.toFixed(1)} ${endY.toFixed(1)}, ${endX.toFixed(1)} ${endY.toFixed(1)}" fill="none" stroke="${strokeColor}" stroke-width="2.5" marker-end="url(#mm-dot)" />`;
+      });
+
+      svg.innerHTML = paths;
+    }
+
+    /* ================= DYNAMIC CANVAS LAYOUT ENGINE ================= */
+    function renderCanvas() {
+      const body = document.getElementById('ig-body');
+      const nodes = state.nodes;
+
+      /* 1. LIST / GUIDE */
+      if (state.layout === 'list') {
+        body.innerHTML = `<div class="layout-list">
+          ${nodes.map((n, i) => `
+            <div class="node-card">
+              ${renderBadgeIcon(n.icon)}
+              <div style="flex:1">
+                <div class="node-title" contenteditable="true" onblur="inlineNodeEdit(${i}, 'title', this.innerText)">${escapeHtml(n.title)}</div>
+                <div class="node-desc" contenteditable="true" onblur="inlineNodeEdit(${i}, 'desc', this.innerText)">${escapeHtml(n.desc)}</div>
+              </div>
+              <span class="step-num" contenteditable="true" onblur="inlineNodeEdit(${i}, 'tag', this.innerText)">${escapeHtml(n.tag)}</span>
+            </div>
+          `).join('')}
+        </div>`;
+      }
+
+      /* 2. UNIFIED COMPARISON COLUMNS */
+      else if (state.layout === 'comparison') {
+        const half = Math.ceil(nodes.length / 2);
+        const left = nodes.slice(0, half);
+        const right = nodes.slice(half);
+        body.innerHTML = `<div class="layout-comparison">
+          <div class="comp-group left-group">
+            <div class="comp-header" style="background:var(--brand-primary);" contenteditable="true">Option A / Current State</div>
+            ${left.map((n, i) => `
+              <div class="comp-item">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                  ${renderInlineIcon(n.icon, '18px')}
+                  <div class="node-title" style="margin:0;" contenteditable="true" onblur="inlineNodeEdit(${i}, 'title', this.innerText)">${escapeHtml(n.title)}</div>
+                </div>
+                <div class="node-desc" contenteditable="true" onblur="inlineNodeEdit(${i}, 'desc', this.innerText)">${escapeHtml(n.desc)}</div>
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="comp-vs-divider">
+            <span class="comp-vs-badge">VS</span>
+          </div>
+
+          <div class="comp-group right-group">
+            <div class="comp-header" style="background:var(--brand-secondary);" contenteditable="true">Option B / Future State</div>
+            ${right.map((n, i) => `
+              <div class="comp-item">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                  ${renderInlineIcon(n.icon, '18px')}
+                  <div class="node-title" style="margin:0;" contenteditable="true" onblur="inlineNodeEdit(${i + half}, 'title', this.innerText)">${escapeHtml(n.title)}</div>
+                </div>
+                <div class="node-desc" contenteditable="true" onblur="inlineNodeEdit(${i + half}, 'desc', this.innerText)">${escapeHtml(n.desc)}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>`;
+      }
+
+      /* 3A. HORIZONTAL TIMELINE */
+      else if (state.layout === 'htimeline') {
+        body.innerHTML = `<div class="layout-htimeline">
+          <div class="htimeline-track"></div>
+          ${nodes.map((n, i) => `
+            <div class="node-card htimeline-item">
+              <div class="htimeline-dot"></div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <span class="ig-kicker" style="margin:0;" contenteditable="true" onblur="inlineNodeEdit(${i}, 'tag', this.innerText)">${escapeHtml(n.tag)}</span>
+                ${renderInlineIcon(n.icon, '16px')}
+              </div>
+              <div class="node-title" style="font-size:calc(15px * var(--font-scale));" contenteditable="true" onblur="inlineNodeEdit(${i}, 'title', this.innerText)">${escapeHtml(n.title)}</div>
+              <div class="node-desc" style="font-size:calc(12.5px * var(--font-scale));" contenteditable="true" onblur="inlineNodeEdit(${i}, 'desc', this.innerText)">${escapeHtml(n.desc)}</div>
+            </div>
+          `).join('')}
+        </div>`;
+      }
+
+      /* 3B. VERTICAL TIMELINE */
+      else if (state.layout === 'vtimeline') {
+        body.innerHTML = `<div class="layout-vtimeline">
+          ${nodes.map((n, i) => `
+            <div class="node-card vtimeline-item">
+              <div class="vtimeline-dot"></div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                <span class="ig-kicker" style="margin:0;" contenteditable="true" onblur="inlineNodeEdit(${i}, 'tag', this.innerText)">${escapeHtml(n.tag)}</span>
+                ${renderInlineIcon(n.icon, '16px')}
+              </div>
+              <div class="node-title" contenteditable="true" onblur="inlineNodeEdit(${i}, 'title', this.innerText)">${escapeHtml(n.title)}</div>
+              <div class="node-desc" contenteditable="true" onblur="inlineNodeEdit(${i}, 'desc', this.innerText)">${escapeHtml(n.desc)}</div>
+            </div>
+          `).join('')}
+        </div>`;
+      }
+
+      /* 4. PROCESS / FLOWCHART WITH ARROWS */
+      else if (state.layout === 'process') {
+        body.innerHTML = `<div class="layout-process">
+          ${nodes.map((n, i) => `
+            <div class="process-step-wrap">
+              <div class="node-card process-card">
+                <span class="process-step-pill" contenteditable="true" onblur="inlineNodeEdit(${i}, 'tag', this.innerText)">${escapeHtml(n.tag)}</span>
+                ${renderBadgeIcon(n.icon)}
+                <div class="node-title" style="font-size:calc(15px * var(--font-scale));" contenteditable="true" onblur="inlineNodeEdit(${i}, 'title', this.innerText)">${escapeHtml(n.title)}</div>
+                <div class="node-desc" style="font-size:calc(12.5px * var(--font-scale));" contenteditable="true" onblur="inlineNodeEdit(${i}, 'desc', this.innerText)">${escapeHtml(n.desc)}</div>
+              </div>
+              ${i < nodes.length - 1 ? `
+                <div class="process-arrow" aria-hidden="true">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M4 12H19M19 12L13 6M19 12L13 18" stroke="var(--brand-primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+              ` : ''}
+            </div>
+          `).join('')}
+        </div>`;
+      }
+
+      /* 5. RADIAL HUB WITH OUTWARD ARROWS */
+      else if (state.layout === 'radial') {
+        const half = Math.ceil(nodes.length / 2);
+        const left = nodes.slice(0, half);
+        const right = nodes.slice(half);
+        body.innerHTML = `<div class="layout-radial-wrap" id="radial-wrap">
+          <svg class="radial-svg-overlay" id="radial-svg"></svg>
+          <div class="layout-radial">
+            <div class="radial-col">
+              ${left.map((n, i) => `
+                <div class="node-card radial-spoke-card" data-side="left">
+                  <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                    ${renderInlineIcon(n.icon, '16px')}
+                    <div class="node-title" style="margin:0; font-size:calc(14.5px * var(--font-scale));" contenteditable="true" onblur="inlineNodeEdit(${i}, 'title', this.innerText)">${escapeHtml(n.title)}</div>
+                  </div>
+                  <div class="node-desc" style="font-size:calc(12px * var(--font-scale));" contenteditable="true" onblur="inlineNodeEdit(${i}, 'desc', this.innerText)">${escapeHtml(n.desc)}</div>
+                </div>
+              `).join('')}
+            </div>
+
+            <div class="radial-hub" id="radial-hub">
+              <strong style="font-family:var(--font-heading); font-size:calc(16px * var(--font-scale)); line-height:1.25;" contenteditable="true">Core Framework</strong>
+            </div>
+
+            <div class="radial-col">
+              ${right.map((n, i) => `
+                <div class="node-card radial-spoke-card" data-side="right">
+                  <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                    ${renderInlineIcon(n.icon, '16px')}
+                    <div class="node-title" style="margin:0; font-size:calc(14.5px * var(--font-scale));" contenteditable="true" onblur="inlineNodeEdit(${i + half}, 'title', this.innerText)">${escapeHtml(n.title)}</div>
+                  </div>
+                  <div class="node-desc" style="font-size:calc(12px * var(--font-scale));" contenteditable="true" onblur="inlineNodeEdit(${i + half}, 'desc', this.innerText)">${escapeHtml(n.desc)}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>`;
+        requestAnimationFrame(drawRadialConnectors);
+      }
+
+      /* 6. MIND MAP FRAMEWORK */
+      else if (state.layout === 'mindmap') {
+        const rootNode = nodes[0];
+        const leaves = nodes.slice(1);
+        body.innerHTML = `<div class="layout-mindmap-wrap" id="mindmap-wrap">
+          <svg class="mindmap-svg-overlay" id="mindmap-svg"></svg>
+          <div class="layout-mindmap">
+            <div class="mindmap-root" id="mindmap-root">
+              ${rootNode.icon ? `<div style="font-size:calc(26px * var(--font-scale)); margin-bottom:6px;">${rootNode.icon}</div>` : ''}
+              <div style="font-size:calc(10px * var(--font-scale)); font-weight:800; text-transform:uppercase; letter-spacing:0.08em; opacity:0.85; margin-bottom:4px;" contenteditable="true" onblur="inlineNodeEdit(0, 'tag', this.innerText)">${escapeHtml(rootNode.tag || 'CENTRAL TOPIC')}</div>
+              <div style="font-family:var(--font-heading); font-size:calc(18px * var(--font-scale)); font-weight:800; line-height:1.2; margin-bottom:6px;" contenteditable="true" onblur="inlineNodeEdit(0, 'title', this.innerText)">${escapeHtml(rootNode.title)}</div>
+              <div style="font-size:calc(12px * var(--font-scale)); line-height:1.4; opacity:0.92;" contenteditable="true" onblur="inlineNodeEdit(0, 'desc', this.innerText)">${escapeHtml(rootNode.desc)}</div>
+            </div>
+
+            <div class="mindmap-branches">
+              ${leaves.map((n, i) => `
+                <div class="node-card mindmap-leaf" style="border-left-color:${i % 2 === 0 ? 'var(--brand-primary)' : 'var(--brand-secondary)'};">
+                  ${renderBadgeIcon(n.icon)}
+                  <div style="flex:1;">
+                    <div class="node-title" style="font-size:calc(15px * var(--font-scale));" contenteditable="true" onblur="inlineNodeEdit(${i + 1}, 'title', this.innerText)">${escapeHtml(n.title)}</div>
+                    <div class="node-desc" style="font-size:calc(12.5px * var(--font-scale));" contenteditable="true" onblur="inlineNodeEdit(${i + 1}, 'desc', this.innerText)">${escapeHtml(n.desc)}</div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>`;
+        requestAnimationFrame(drawMindMapConnectors);
+      }
+
+      /* 7. 2x2 MATRIX / QUADRANT */
+      else if (state.layout === 'matrix') {
+        const quadrants = ['High Impact • Low Effort', 'High Impact • High Effort', 'Quick Wins', 'Long-Term Strategic'];
+        body.innerHTML = `<div class="layout-matrix">
+          ${nodes.map((n, i) => `
+            <div class="node-card">
+              <span class="matrix-badge" contenteditable="true">${quadrants[i % quadrants.length]}</span>
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                ${renderInlineIcon(n.icon, '20px')}
+                <div class="node-title" style="margin:0;" contenteditable="true" onblur="inlineNodeEdit(${i}, 'title', this.innerText)">${escapeHtml(n.title)}</div>
+              </div>
+              <div class="node-desc" contenteditable="true" onblur="inlineNodeEdit(${i}, 'desc', this.innerText)">${escapeHtml(n.desc)}</div>
+            </div>
+          `).join('')}
+        </div>`;
+      }
+
+      /* 8. DATA-HEAVY / STATISTICAL */
+      else if (state.layout === 'data') {
+        body.innerHTML = `<div class="layout-data">
+          ${nodes.map((n, i) => {
+            const numVal = parseFloat(String(n.metric).replace(/,/g, '')) || 75;
+            const pct = numVal > 100 ? Math.max(20, 100 - i * 18) : Math.min(100, Math.max(12, numVal <= 10 ? numVal * 20 : numVal));
+            return `
+              <div class="node-card data-row">
+                <div>
+                  <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+                    ${renderInlineIcon(n.icon, '15px')}
+                    <div class="node-title" style="font-size:calc(15px * var(--font-scale)); margin:0;" contenteditable="true" onblur="inlineNodeEdit(${i}, 'title', this.innerText)">${escapeHtml(n.title)}</div>
+                  </div>
+                  <div class="node-desc" style="font-size:calc(12px * var(--font-scale));" contenteditable="true" onblur="inlineNodeEdit(${i}, 'desc', this.innerText)">${escapeHtml(n.desc)}</div>
+                </div>
+                <div class="bar-track">
+                  <div class="bar-fill" style="width:${pct}%"></div>
+                </div>
+                <div class="node-metric" style="text-align:right;" contenteditable="true" onblur="inlineNodeEdit(${i}, 'metric', this.innerText)">${escapeHtml(n.metric)}</div>
+              </div>
+            `;
+          }).join('')}
+        </div>`;
+      }
+
+      /* 9. PYRAMID / HIERARCHY */
+      else if (state.layout === 'pyramid') {
+        const total = nodes.length;
+        body.innerHTML = `<div class="layout-pyramid">
+          ${nodes.map((n, i) => {
+            const widthPct = 48 + ((i + 1) / total) * 52;
+            return `
+              <div class="node-card pyramid-tier" style="width:${widthPct}%;">
+                <div style="display:flex; align-items:center; justify-content:center; gap:6px; margin-bottom:4px;">
+                  ${renderInlineIcon(n.icon, '15px')}
+                  <div class="node-title" style="font-size:calc(15px * var(--font-scale)); margin:0;" contenteditable="true" onblur="inlineNodeEdit(${i}, 'title', this.innerText)">${escapeHtml(n.title)}</div>
+                </div>
+                <div class="node-desc" style="font-size:calc(12.5px * var(--font-scale));" contenteditable="true" onblur="inlineNodeEdit(${i}, 'desc', this.innerText)">${escapeHtml(n.desc)}</div>
+              </div>
+            `;
+          }).join('')}
+        </div>`;
+      }
+
+      /* 10. CONVERSION FUNNEL */
+      else if (state.layout === 'funnel') {
+        const total = nodes.length;
+        const accents = ['var(--brand-primary)', 'var(--brand-secondary)', 'var(--brand-accent)', 'var(--brand-primary)'];
+        body.innerHTML = `<div class="layout-funnel">
+          ${nodes.map((n, i) => {
+            const widthPct = total === 1 ? 85 : 100 - (i / (total - 1)) * 46;
+            const borderColor = accents[i % accents.length];
+            return `
+              <div class="node-card funnel-stage" style="width:${widthPct}%; border-left-color:${borderColor};">
+                <div style="display:flex; align-items:center; gap:12px;">
+                  ${renderInlineIcon(n.icon, '20px')}
+                  <div>
+                    <div class="node-title" style="font-size:calc(15px * var(--font-scale)); margin-bottom:2px;" contenteditable="true" onblur="inlineNodeEdit(${i}, 'title', this.innerText)">${escapeHtml(n.title)}</div>
+                    <div class="node-desc" style="font-size:calc(12px * var(--font-scale));" contenteditable="true" onblur="inlineNodeEdit(${i}, 'desc', this.innerText)">${escapeHtml(n.desc)}</div>
+                  </div>
+                </div>
+                <span class="funnel-metric-pill" style="background:${borderColor};" contenteditable="true" onblur="inlineNodeEdit(${i}, 'metric', this.innerText)">${escapeHtml(n.metric)}</span>
+              </div>
+            `;
+          }).join('')}
+        </div>`;
+      }
+
+      /* 11. CYCLE / CONTINUOUS LOOP (SINGLE UNIFIED COLOR) */
+      else if (state.layout === 'cycle') {
+        const count = nodes.length;
+        const cx = 50;
+        const cy = 50;
+        const rx = 34;
+        const ry = 35;
+
+        const positionedNodes = nodes.map((n, i) => {
+          const angle = -Math.PI / 2 + (2 * Math.PI * i) / count;
+          const left = cx + rx * Math.cos(angle);
+          const top = cy + ry * Math.sin(angle);
+          return `
+            <div class="node-card cycle-node" style="left:${left}%; top:${top}%;">
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+                ${renderInlineIcon(n.icon, '15px')}
+                <div class="node-title" style="font-size:calc(13.5px * var(--font-scale)); margin:0;" contenteditable="true" onblur="inlineNodeEdit(${i}, 'title', this.innerText)">${escapeHtml(n.title)}</div>
+              </div>
+              <div class="node-desc" style="font-size:calc(11.5px * var(--font-scale)); line-height:1.35;" contenteditable="true" onblur="inlineNodeEdit(${i}, 'desc', this.innerText)">${escapeHtml(n.desc)}</div>
+            </div>
+          `;
+        }).join('');
+
+        body.innerHTML = `<div class="layout-cycle">
+          <svg class="cycle-ring-svg" viewBox="0 0 732 460" preserveAspectRatio="none">
+            <defs>
+              <marker id="cycle-arrow" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L8,3 z" fill="var(--brand-primary)" />
+              </marker>
+            </defs>
+            <ellipse cx="366" cy="230" rx="248" ry="160" fill="none" stroke="var(--brand-primary)" stroke-width="2.5" stroke-dasharray="8 6" opacity="0.45" />
+            <path d="M 366 70 A 248 160 0 0 1 614 230" fill="none" stroke="var(--brand-primary)" stroke-width="2.5" marker-end="url(#cycle-arrow)" />
+            <path d="M 614 230 A 248 160 0 0 1 366 390" fill="none" stroke="var(--brand-primary)" stroke-width="2.5" marker-end="url(#cycle-arrow)" />
+            <path d="M 366 390 A 248 160 0 0 1 118 230" fill="none" stroke="var(--brand-primary)" stroke-width="2.5" marker-end="url(#cycle-arrow)" />
+            <path d="M 118 230 A 248 160 0 0 1 366 70" fill="none" stroke="var(--brand-primary)" stroke-width="2.5" marker-end="url(#cycle-arrow)" />
+          </svg>
+          <div class="cycle-center-badge">
+            <strong style="font-size:calc(12.5px * var(--font-scale)); font-family:var(--font-heading);" contenteditable="true">Continuous Feedback Loop</strong>
+          </div>
+          ${positionedNodes}
+        </div>`;
+      }
+
+      /* 12. VENN DIAGRAM (FIXED NON-OVERLAPPING TEXT REGIONS) */
+      else if (state.layout === 'venn') {
+        const vennNodes = nodes.slice(0, 3);
+        const isTwo = vennNodes.length <= 2;
+
+        const fills = [
+          'rgba(79, 70, 229, 0.13)',
+          'rgba(6, 182, 212, 0.13)',
+          'rgba(249, 115, 22, 0.13)'
+        ];
+
+        // Circle geometry (270x270) + separated outer text label zones so text never collides
+        const layout2 = [
+          { circle: { left: '75px', top: '45px' }, label: { left: '92px', top: '108px' } },
+          { circle: { left: '275px', top: '45px' }, label: { left: '356px', top: '108px' } }
+        ];
+
+        const layout3 = [
+          { circle: { left: '175px', top: '4px' }, label: { left: '224px', top: '34px' } },
+          { circle: { left: '68px', top: '138px' }, label: { left: '84px', top: '214px' } },
+          { circle: { left: '282px', top: '138px' }, label: { left: '364px', top: '214px' } }
+        ];
+
+        const spec = isTwo ? layout2 : layout3;
+
+        body.innerHTML = `<div class="layout-venn">
+          <div class="venn-stage" style="height:${isTwo ? '345px' : '415px'};">
+            ${vennNodes.map((n, i) => `
+              <div class="venn-circle" style="left:${spec[i].circle.left}; top:${spec[i].circle.top}; background:${fills[i]};"></div>
+              <div class="venn-label-box" style="left:${spec[i].label.left}; top:${spec[i].label.top};">
+                ${n.icon ? `<span style="font-size:calc(18px * var(--font-scale)); margin-bottom:2px;">${n.icon}</span>` : ''}
+                <div class="node-title" style="font-size:calc(13.5px * var(--font-scale)); line-height:1.2;" contenteditable="true" onblur="inlineNodeEdit(${i}, 'title', this.innerText)">${escapeHtml(n.title)}</div>
+                <div class="node-desc" style="font-size:calc(11px * var(--font-scale)); line-height:1.3;" contenteditable="true" onblur="inlineNodeEdit(${i}, 'desc', this.innerText)">${escapeHtml(n.desc)}</div>
+              </div>
+            `).join('')}
+            <div class="venn-sweetspot" style="top:${isTwo ? '180px' : '222px'};" contenteditable="true">★ Sweet Spot</div>
+          </div>
+          ${nodes.length > 3 ? `
+            <div class="node-card" style="width:100%; text-align:center; padding:12px 18px;">
+              <strong style="color:var(--brand-primary);" contenteditable="true" onblur="inlineNodeEdit(3, 'title', this.innerText)">${nodes[3].icon ? nodes[3].icon + ' ' : ''}${escapeHtml(nodes[3].title)}:</strong>
+              <span class="node-desc" contenteditable="true" onblur="inlineNodeEdit(3, 'desc', this.innerText)"> ${escapeHtml(nodes[3].desc)}</span>
+            </div>
+          ` : ''}
+        </div>`;
+      }
+
+      /* 13. DECISION TREE */
+      else if (state.layout === 'tree') {
+        const root = nodes[0];
+        const branchNodes = nodes.slice(1);
+        const half = Math.ceil(branchNodes.length / 2);
+        const leftBranch = branchNodes.slice(0, half);
+        const rightBranch = branchNodes.slice(half);
+
+        body.innerHTML = `<div class="layout-tree">
+          <div class="node-card tree-root">
+            <span class="ig-kicker" style="margin-bottom:4px;" contenteditable="true" onblur="inlineNodeEdit(0, 'tag', this.innerText)">${escapeHtml(root.tag || 'ROOT DECISION')}</span>
+            <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:4px;">
+              ${renderInlineIcon(root.icon, '18px')}
+              <div class="node-title" style="font-size:calc(18px * var(--font-scale)); margin:0;" contenteditable="true" onblur="inlineNodeEdit(0, 'title', this.innerText)">${escapeHtml(root.title)}</div>
+            </div>
+            <div class="node-desc" contenteditable="true" onblur="inlineNodeEdit(0, 'desc', this.innerText)">${escapeHtml(root.desc)}</div>
+          </div>
+
+          <svg class="tree-connectors" viewBox="0 0 400 40" preserveAspectRatio="none">
+            <path d="M 200 0 L 200 20 L 80 20 L 80 40" fill="none" stroke="var(--brand-primary)" stroke-width="2.5" />
+            <path d="M 200 20 L 320 20 L 320 40" fill="none" stroke="var(--brand-secondary)" stroke-width="2.5" />
+          </svg>
+
+          <div class="tree-branches">
+            <div class="tree-branch-col">
+              <span class="tree-pill" style="background:var(--brand-primary);" contenteditable="true">Path A • Yes</span>
+              ${leftBranch.map((n, i) => `
+                <div class="node-card" style="width:100%;">
+                  <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                    ${renderInlineIcon(n.icon, '16px')}
+                    <div class="node-title" style="font-size:calc(15px * var(--font-scale)); margin:0;" contenteditable="true" onblur="inlineNodeEdit(${i + 1}, 'title', this.innerText)">${escapeHtml(n.title)}</div>
+                  </div>
+                  <div class="node-desc" style="font-size:calc(12.5px * var(--font-scale));" contenteditable="true" onblur="inlineNodeEdit(${i + 1}, 'desc', this.innerText)">${escapeHtml(n.desc)}</div>
+                </div>
+              `).join('')}
+            </div>
+
+            <div class="tree-branch-col">
+              <span class="tree-pill" style="background:var(--brand-secondary);" contenteditable="true">Path B • Alternative</span>
+              ${rightBranch.map((n, i) => `
+                <div class="node-card" style="width:100%;">
+                  <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                    ${renderInlineIcon(n.icon, '16px')}
+                    <div class="node-title" style="font-size:calc(15px * var(--font-scale)); margin:0;" contenteditable="true" onblur="inlineNodeEdit(${i + 1 + half}, 'title', this.innerText)">${escapeHtml(n.title)}</div>
+                  </div>
+                  <div class="node-desc" style="font-size:calc(12.5px * var(--font-scale));" contenteditable="true" onblur="inlineNodeEdit(${i + 1 + half}, 'desc', this.innerText)">${escapeHtml(n.desc)}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>`;
+      }
+    }
+
+    function inlineNodeEdit(index, key, value) {
+      state.nodes[index][key] = value.trim();
+      renderSidebarEditors();
+      if (state.layout === 'radial') requestAnimationFrame(drawRadialConnectors);
+      if (state.layout === 'mindmap') requestAnimationFrame(drawMindMapConnectors);
+    }
+
+    /* ================= WORKSPACE CONTROLS ================= */
+    function changeRatio(ratioClass) {
+      const canvas = document.getElementById('infographic-canvas');
+      canvas.classList.remove('ratio-wide', 'ratio-square', 'ratio-tall');
+      if (ratioClass !== 'default') canvas.classList.add(ratioClass);
+      if (state.layout === 'radial') requestAnimationFrame(drawRadialConnectors);
+      if (state.layout === 'mindmap') requestAnimationFrame(drawMindMapConnectors);
+    }
+
+    function toggleTransparent(isTransparent) {
+      document.getElementById('infographic-canvas').classList.toggle('transparent-bg', isTransparent);
+    }
+
+    /* ================= MARKDOWN PARSER ================= */
+    function openMdModal() { document.getElementById('md-modal').classList.add('open'); }
+    function closeMdModal() { document.getElementById('md-modal').classList.remove('open'); }
+
+    function parseMarkdownToNodes() {
+      const raw = document.getElementById('md-input').value.trim();
+      if (!raw) return;
+
+      const lines = raw.split('\n').map(l => l.replace(/^[-*•\d.)]+\s*/, '').trim()).filter(Boolean);
+      state.nodes = lines.map((line, idx) => {
+        const parts = line.split(/:\s+|—\s+|-\s+/);
+        return {
+          icon: ICONS[idx % ICONS.length],
+          tag: `Stage 0${idx + 1}`,
+          metric: `${Math.max(15, 90 - idx * 18)}%`,
+          title: parts[0] || `Point ${idx + 1}`,
+          desc: parts.slice(1).join(': ') || 'Key strategic takeaway.'
+        };
+      });
+
+      renderSidebarEditors();
+      renderCanvas();
+      closeMdModal();
+    }
+
+    /* ================= EXPORTS (PNG, SVG, JSON) ================= */
+    function exportPNG() {
+      const node = document.getElementById('infographic-canvas');
+      htmlToImage.toPng(node, { pixelRatio: 2 })
+        .then(dataUrl => {
+          const link = document.createElement('a');
+          link.download = `straive-infographic-${state.layout}.png`;
+          link.href = dataUrl;
+          link.click();
+        });
+    }
+
+    function exportSVG() {
+      const node = document.getElementById('infographic-canvas');
+      htmlToImage.toSvg(node)
+        .then(dataUrl => {
+          const link = document.createElement('a');
+          link.download = `straive-infographic-${state.layout}.svg`;
+          link.href = dataUrl;
+          link.click();
+        });
+    }
+
+    function exportJSON() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const link = document.createElement('a');
+      link.download = 'straive-project.json';
+      link.href = URL.createObjectURL(blob);
+      link.click();
+    }
+
+    function importJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        const loaded = JSON.parse(e.target.result);
+        state = {
+          ...state,
+          ...loaded,
+          style: { ...state.style, ...(loaded.style || {}) }
+        };
+        ['kicker', 'title', 'subtitle', 'brand', 'source'].forEach(f => {
+          document.getElementById(`inp-${f}`).value = state[f] || '';
+          document.getElementById(`out-${f}`).innerText = state[f] || '';
+        });
+        applyStyleToCanvas();
+        renderPresetButtons();
+        renderSidebarEditors();
+        renderCanvas();
+      };
+      reader.readAsText(file);
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+    }
+
+    init();
+  </script>
+</body>
+</html>
